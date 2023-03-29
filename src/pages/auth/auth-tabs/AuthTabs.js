@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./AuthTabs.scss";
 import BgImg from "../../../assets/images/background.jpg";
 import Login from "../login/Login";
+import Register from "../register/Register";
 
 function AuthTabs() {
   const [type, setType] = useState("Sign In");
@@ -29,7 +30,7 @@ function AuthTabs() {
             {type === "Sign Up" && (
               <div className="tab-item">
                 <div className="tab-item">
-                  <Login />
+                  <Register />
                 </div>
               </div>
             )}
