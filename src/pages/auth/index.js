@@ -1,3 +1,3 @@
-import AuthTabs from "../auth/auth-tabs/AuthTabs";
+import AuthTabs from "./auth-tabs/AuthTabs";
 
 export { AuthTabs };

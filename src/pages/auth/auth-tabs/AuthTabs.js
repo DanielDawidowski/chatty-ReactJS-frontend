@@ -1,5 +1,5 @@
 import React from "react";
-
+import "./AuthTabs.scss";
 function AuthTabs() {
   return (
     <div className="container-wrapper">
