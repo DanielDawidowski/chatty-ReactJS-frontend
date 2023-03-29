@@ -1,23 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa";
 import Input from "../../../components/input/Input";
 import Button from "../../../components/button/Button";
+import { authService } from "../../../services/api/auth/auth.service";
 
 import "./Login.scss";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading] = useState(false);
-  const [hasError] = useState(false);
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [alertType, setAlertType] = useState("");
+  const [user, setUser] = useState();
+  const [hasError, setHasError] = useState(false);
+
+  const loginUser = async (event) => {
+    setLoading(true);
+    event.preventDefault();
+    try {
+      const result = await authService.signIn({
+        username,
+        password
+      });
+      console.log(result);
+      // return result;
+      setUser(result.data.user);
+      setHasError(false);
+      setAlertType("alert-success");
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      setHasError(true);
+      setAlertType("alert-error");
+      setErrorMessage(error?.response?.data.message);
+    }
+  };
+
+  useEffect(() => {
+    if (loading && !user) return;
+    if (user) console.log("redirect to page");
+  }, [loading, user]);
+
   return (
     <div className="auth-inner">
-      <div className="alerts" role="alert">
-        Error message
-      </div>
-      <form className="auth-form">
+      {hasError && errorMessage && (
+        <div className={`alerts ${alertType}`} role="alert">
+          {errorMessage}
+        </div>
+      )}
+      <form className="auth-form" onSubmit={loginUser}>
         <div className="form-input-container">
           <Input
             id="username"

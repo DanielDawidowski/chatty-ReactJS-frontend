@@ -13,7 +13,7 @@ const Register = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [alertType, setAlertType] = useState("");
   const [hasError, setHasError] = useState(false);
-  const [user] = useState();
+  const [user, setUser] = useState();
 
   const registerUser = async (event) => {
     setLoading(true);
@@ -28,10 +28,12 @@ const Register = () => {
         avatarColor,
         avatarImage
       });
+      setUser(result.data.user);
       setHasError(false);
       setAlertType("alert-success");
       console.log(result);
       // return result;
+      setLoading(false);
     } catch (error) {
       setLoading(false);
       setHasError(true);
@@ -43,7 +45,6 @@ const Register = () => {
   useEffect(() => {
     if (loading && !user) return;
     if (user) console.log("redirect to page");
-    setLoading(false);
   }, [loading, user]);
 
   return (
