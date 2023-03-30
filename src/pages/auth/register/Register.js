@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Input from "@components/input/Input";
 import Button from "@components/button/Button";
 import { authService } from "@services/api/auth/auth.service";
 import { Utils } from "@services/utils/utils.service";
+import useLocalStorage from "@hooks/useLocalStorage";
+import useSessionStorage from "@hooks/useSessionStorage";
 import "@pages/auth/register/Register.scss";
 
 const Register = () => {
@@ -15,7 +18,11 @@ const Register = () => {
   const [alertType, setAlertType] = useState("");
   const [hasError, setHasError] = useState(false);
   const [user, setUser] = useState();
+  const [setStoredUsername] = useLocalStorage("username", "set");
+  const [setLoggedIn] = useLocalStorage("keepLoggedIn", "set");
+  const [pageReload] = useSessionStorage("pageReload", "set");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const registerUser = async (event) => {
     setLoading(true);
@@ -31,8 +38,10 @@ const Register = () => {
         avatarImage
       });
       setUser(result.data.user);
-      setHasError(false);
+      setLoggedIn(true);
+      setStoredUsername(username);
       setAlertType("alert-success");
+      Utils.dispatchUser(result, pageReload, dispatch, setUser);
       console.log(result);
       // return result;
       setLoading(false);
