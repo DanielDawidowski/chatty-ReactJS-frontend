@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa";
 import Input from "@components/input/Input";
 import Button from "@components/button/Button";
@@ -16,6 +16,7 @@ const Login = () => {
   const [alertType, setAlertType] = useState("");
   const [user, setUser] = useState();
   const [hasError, setHasError] = useState(false);
+  const navigate = useNavigate();
 
   const loginUser = async (event) => {
     setLoading(true);
@@ -35,14 +36,14 @@ const Login = () => {
       setLoading(false);
       setHasError(true);
       setAlertType("alert-error");
-      setErrorMessage(error?.response?.data?.message);
+      setErrorMessage(error?.response?.data.message);
     }
   };
 
   useEffect(() => {
     if (loading && !user) return;
-    if (user) console.log("redirect to page");
-  }, [loading, user]);
+    if (user) navigate("/app/social/streams");
+  }, [loading, user, navigate]);
 
   return (
     <div className="auth-inner">
