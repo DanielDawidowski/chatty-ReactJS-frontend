@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa";
-import Input from "../../../components/input/Input";
-import Button from "../../../components/button/Button";
-import { authService } from "../../../services/api/auth/auth.service";
+import Input from "@components/input/Input";
+import Button from "@components/button/Button";
+import { authService } from "@services/api/auth/auth.service";
 
-import "./Login.scss";
+import "@pages/auth/login/Login.scss";
 
 const Login = () => {
   const [username, setUsername] = useState("");
