@@ -11,4 +11,5 @@ const useChatScrollToBottom = (prop) => {
 
   return scrollRef;
 };
+
 export default useChatScrollToBottom;
