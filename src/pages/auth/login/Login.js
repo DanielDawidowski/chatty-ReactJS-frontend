@@ -25,9 +25,10 @@ const Login = () => {
         username,
         password
       });
-      console.log(result);
+      console.log("result ---", result);
       // return result;
-      setUser(result.data.user);
+      setUser(result?.data?.user);
+      console.log("user ---", user);
       setHasError(false);
       setAlertType("alert-success");
       setLoading(false);
