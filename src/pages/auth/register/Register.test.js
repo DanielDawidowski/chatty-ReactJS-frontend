@@ -83,7 +83,7 @@ describe("Register", () => {
         userEvent.click(buttonElement);
       });
 
-      // await waitFor(() => expect(mockedUseNavigate).toHaveBeenCalledWith("/app/social/streams"));
+      // expect(mockedUseNavigate).toHaveBeenCalledWith("/app/social/streams");
     });
   });
   describe("Error", () => {

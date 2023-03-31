@@ -7,10 +7,7 @@ import "jest-canvas-mock";
 
 import { server } from "./mocks/server";
 
-beforeAll(() => {
-  // Establish requests interception layer before all tests.
-  server.listen();
-});
+beforeAll(() => server.listen({ onUnhandledRequest: "bypass" }));
 
 afterEach(() => {
   server.resetHandlers();
