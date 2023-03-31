@@ -50,7 +50,7 @@ const ResetPassword = () => {
             <div className="tab-item">
               <div className="auth-inner">
                 {responseMessage && (
-                  <div className={`alerts ${alertType}`} role="alert">
+                  <div role="alert" className={`alerts ${alertType}`}>
                     {responseMessage}
                   </div>
                 )}

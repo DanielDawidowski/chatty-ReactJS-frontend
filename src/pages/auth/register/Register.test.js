@@ -101,11 +101,9 @@ describe("Register", () => {
       userEvent.type(passwordElement, "qwerty");
       userEvent.click(buttonElement);
 
-      // await waitFor(() => {
-      //   const alert = screen.getByRole("alert");
-      //   expect(alert).toBeInTheDocument();
-      //   expect(alert.textContent).toEqual("Invalid credentials");
-      // });
+      // const alert = await screen.findByRole("alert");
+      // expect(alert).toBeInTheDocument();
+      // expect(alert.textContent).toEqual("Invalid credentials");
 
       await waitFor(() => expect(usernameElement).toHaveStyle({ border: "1px solid #fa9b8a" }));
       await waitFor(() => expect(emailElement).toHaveStyle({ border: "1px solid #fa9b8a" }));
