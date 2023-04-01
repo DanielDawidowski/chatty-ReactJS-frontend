@@ -60,7 +60,7 @@ const Header = () => {
             </li>
             <li className="header-nav-item">
               <span className="header-list-name profile-image">
-                <Avatar name="Dawid" bgColor="#f33e58" textColor="#fff" size="30" avatarSrc="" />
+                <Avatar name="Dawid" bgColor="#f33e58" textColor="#fff" size={30} avatarSrc="" />
               </span>
               <span className="header-list-name profile-name">
                 Dawid
