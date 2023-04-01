@@ -1,4 +1,5 @@
 import { AuthTabs, ForgotPassword, ResetPassword } from "@pages/auth";
+import Social from "@pages/social/Social";
 import Streams from "@pages/social/streams/streams";
 import { useRoutes } from "react-router-dom";
 // import { Suspense, lazy } from "react";
@@ -18,8 +19,14 @@ export const AppRouter = () => {
       element: <ResetPassword />
     },
     {
-      path: "/app/social/streams",
-      element: <Streams />
+      path: "/app/social",
+      element: <Social />,
+      children: [
+        {
+          path: "streams",
+          element: <Streams />
+        }
+      ]
     }
   ]);
   return elements;
