@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 // import useInfiniteScroll from "@hooks/useInfiniteScroll";
 import "@pages/social/streams/Streams.scss";
+import Suggestions from "@components/suggestions/Suggestions";
 
 function Streams() {
   const bodyRef = useRef(null);
@@ -14,7 +15,7 @@ function Streams() {
           <div ref={bottomLineRef} style={{ marginBottom: "50px", height: "50px" }}></div>
         </div>
         <div className="streams-suggestions">
-          <h1>USER Suggestions</h1>
+          <Suggestions />
         </div>
       </div>
     </div>
