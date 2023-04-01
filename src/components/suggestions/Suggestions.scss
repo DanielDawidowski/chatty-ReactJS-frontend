@@ -11,7 +11,6 @@
     "suggestions-header"
     "hr"
     "suggestions-list";
-
   .suggestions-header {
     grid-area: suggestions-header;
     display: grid;
@@ -53,6 +52,7 @@
       padding: 0;
       margin-top: 20px;
       cursor: pointer;
+      overflow: hidden;
 
       .suggestions-item {
         display: grid;

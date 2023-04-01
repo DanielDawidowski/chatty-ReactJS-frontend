@@ -1,18 +1,19 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
 // import useInfiniteScroll from "@hooks/useInfiniteScroll";
 import "@pages/social/streams/Streams.scss";
 import Suggestions from "@components/suggestions/Suggestions";
 import { getUserSuggestions } from "@redux/api/suggestions";
+import useEffectOnce from "@hooks/useEffectOnce";
 
 function Streams() {
   const bodyRef = useRef(null);
   const bottomLineRef = useRef();
   const dispatch = useDispatch();
 
-  useEffect(() => {
+  useEffectOnce(() => {
     dispatch(getUserSuggestions());
-  }, [dispatch]);
+  });
 
   return (
     <div className="streams" data-testid="streams">

@@ -21,7 +21,7 @@ const Suggestions = () => {
       <hr />
       <div className="suggestions-container">
         <div className="suggestions">
-          {[]?.map((user, index) => (
+          {users?.map((user, index) => (
             <div data-testid="suggestions-item" className="suggestions-item" key={index}>
               <Avatar
                 name={user?.username}
@@ -37,7 +37,7 @@ const Suggestions = () => {
             </div>
           ))}
         </div>
-        <div className="view-more">View More</div>
+        {users.length > 8 && <div className="view-more">View More</div>}
       </div>
     </div>
   );
