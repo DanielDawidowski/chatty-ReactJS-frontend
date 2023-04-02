@@ -11,8 +11,8 @@ import useSessionStorage from "@hooks/useSessionStorage";
 import { Utils } from "@services/utils/utils.service";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("Dawid");
+  const [password, setPassword] = useState("qwerty");
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");

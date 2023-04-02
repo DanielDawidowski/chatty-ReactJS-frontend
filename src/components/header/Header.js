@@ -1,14 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import logo from "@assets/images/logo.svg";
 import { FaCaretDown, FaRegBell, FaRegEnvelope, FaCaretUp } from "react-icons/fa";
 import useDetectOutsideClick from "@hooks/useDetectOutsideClick";
 import MessageSidebar from "@components/message-sidebar/MessageSidebar";
-
-import "@components/header/Header.scss";
+import useEffectOnce from "@hooks/useEffectOnce";
 import Avatar from "@components/avatar/Avatar";
 import { Utils } from "@services/utils/utils.service";
 import Dropdown from "@components/dropdown/Dropdown";
+
+import "@components/header/Header.scss";
+import { ProfileUtils } from "@services/utils/profile-utils.service";
 
 const Header = () => {
   const { profile } = useSelector((state) => state.user);
@@ -16,7 +19,8 @@ const Header = () => {
   const messageRef = useRef(null);
   const notificationRef = useRef(null);
   const settingsRef = useRef(null);
-
+  const navigate = useNavigate();
+  const [settings, setSettings] = useState([]);
   const [isMessageActive, setIsMessageActive] = useDetectOutsideClick(messageRef, false);
   const [isNotificationActive, setIsNotificationActive] = useDetectOutsideClick(notificationRef, false);
   const [isSettingsActive, setIsSettingsActive] = useDetectOutsideClick(settingsRef, false);
@@ -33,6 +37,11 @@ const Header = () => {
 
   const onLogout = () => {};
 
+  useEffectOnce(() => {
+    Utils.mapSettingsDropdownItems(setSettings);
+    console.log(settings);
+  });
+
   useEffect(() => {
     const env = Utils.appEnvironment();
     setEnvironment(env);
@@ -47,7 +56,7 @@ const Header = () => {
           </div>
         )}
         <div className="header-navbar">
-          <div className="header-image" data-testid="header-image">
+          <div className="header-image" data-testid="header-image" onClick={() => navigate("/app/social/streams")}>
             <img src={logo} className="img-fluid" alt="" />
             <div className="app-name">
               Chatty
@@ -112,9 +121,9 @@ const Header = () => {
             <li
               className="header-nav-item"
               onClick={() => {
+                setIsSettingsActive(!isSettingsActive);
                 setIsMessageActive(false);
                 setIsNotificationActive(false);
-                setIsSettingsActive(true);
               }}
             >
               <span className="header-list-name profile-image">
@@ -141,11 +150,11 @@ const Header = () => {
                     <Dropdown
                       height={300}
                       style={{ right: "150px", top: "40px" }}
-                      data={[]}
+                      data={settings}
                       notificationCount={0}
                       title="Settings"
                       onLogout={onLogout}
-                      onNavigate={() => {}}
+                      onNavigate={() => ProfileUtils.navigateToProfile(profile, navigate)}
                     />
                   </li>
                 </ul>
