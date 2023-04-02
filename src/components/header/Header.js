@@ -1,24 +1,37 @@
 import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import logo from "@assets/images/logo.svg";
-import { FaCaretDown, FaRegBell, FaRegEnvelope } from "react-icons/fa";
+import { FaCaretDown, FaRegBell, FaRegEnvelope, FaCaretUp } from "react-icons/fa";
 import useDetectOutsideClick from "@hooks/useDetectOutsideClick";
 import MessageSidebar from "@components/message-sidebar/MessageSidebar";
 
 import "@components/header/Header.scss";
 import Avatar from "@components/avatar/Avatar";
 import { Utils } from "@services/utils/utils.service";
+import Dropdown from "@components/dropdown/Dropdown";
 
 const Header = () => {
   const { profile } = useSelector((state) => state.user);
   const [environment, setEnvironment] = useState("");
   const messageRef = useRef(null);
+  const notificationRef = useRef(null);
+  const settingsRef = useRef(null);
+
   const [isMessageActive, setIsMessageActive] = useDetectOutsideClick(messageRef, false);
+  const [isNotificationActive, setIsNotificationActive] = useDetectOutsideClick(notificationRef, false);
+  const [isSettingsActive, setIsSettingsActive] = useDetectOutsideClick(settingsRef, false);
+
   const backgrounColor = `${
     environment === "DEV" || environment === "LOCAL" ? "#50b5ff" : environment === "STG" ? "#e9710f" : ""
   }`;
 
   const openChatPage = () => {};
+
+  const onMarkAsRead = () => {};
+
+  const onDeleteNotification = () => {};
+
+  const onLogout = () => {};
 
   useEffect(() => {
     const env = Utils.appEnvironment();
@@ -51,33 +64,92 @@ const Header = () => {
             <span className="bar"></span>
           </div>
           <ul className="header-nav">
-            <li className="header-nav-item active-item" onClick={() => setIsMessageActive(false)}>
+            <li
+              className="header-nav-item active-item"
+              onClick={() => {
+                setIsMessageActive(false);
+                setIsNotificationActive(true);
+                setIsSettingsActive(false);
+              }}
+            >
               <span className="header-list-name">
                 <FaRegBell className="header-list-icon" />
                 <span className="bg-danger-dots dots" data-testid="notification-dots">
                   5
                 </span>
               </span>
-              <ul className="dropdown-ul">
-                <li className="dropdown-li"></li>
-              </ul>
+              {isNotificationActive && (
+                <ul className="dropdown-ul">
+                  <li className="dropdown-li" ref={notificationRef}>
+                    <Dropdown
+                      height={300}
+                      style={{ right: "250px", top: "20px" }}
+                      data={[]}
+                      notificationCount={0}
+                      title="Notifications"
+                      onMarkAsRead={onMarkAsRead}
+                      onDeleteNotification={onDeleteNotification}
+                    />
+                  </li>
+                </ul>
+              )}
               &nbsp;
             </li>
-            <li className="header-nav-item active-item" onClick={() => setIsMessageActive(true)}>
+            <li
+              className="header-nav-item active-item"
+              onClick={() => {
+                setIsMessageActive(true);
+                setIsNotificationActive(false);
+                setIsSettingsActive(false);
+              }}
+            >
               <span className="header-list-name">
                 <FaRegEnvelope className="header-list-icon" />
                 <span className="bg-danger-dots dots" data-testid="messages-dots"></span>
               </span>
               &nbsp;
             </li>
-            <li className="header-nav-item">
+            <li
+              className="header-nav-item"
+              onClick={() => {
+                setIsMessageActive(false);
+                setIsNotificationActive(false);
+                setIsSettingsActive(true);
+              }}
+            >
               <span className="header-list-name profile-image">
-                <Avatar name="Dawid" bgColor="#f33e58" textColor="#fff" size={30} avatarSrc="" />
+                <Avatar
+                  name={profile?.username}
+                  bgColor={profile?.avatarColor}
+                  textColor="#fff"
+                  size={40}
+                  avatarSrc={profile?.profilePicture}
+                />
               </span>
               <span className="header-list-name profile-name">
-                Dawid
-                <FaCaretDown className="header-list-icon caret" />
+                {profile?.username}
+                {!isSettingsActive ? (
+                  <FaCaretDown className="header-list-icon caret" />
+                ) : (
+                  <FaCaretUp className="header-list-icon caret" />
+                )}
               </span>
+
+              {isSettingsActive && (
+                <ul className="dropdown-ul" ref={settingsRef}>
+                  <li className="dropdown-li">
+                    <Dropdown
+                      height={300}
+                      style={{ right: "150px", top: "40px" }}
+                      data={[]}
+                      notificationCount={0}
+                      title="Settings"
+                      onLogout={onLogout}
+                      onNavigate={() => {}}
+                    />
+                  </li>
+                </ul>
+              )}
               <ul className="dropdown-ul">
                 <li className="dropdown-li"></li>
               </ul>
