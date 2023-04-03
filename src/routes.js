@@ -11,6 +11,7 @@ import Social from "@pages/social/Social";
 import Streams from "@pages/social/streams/Streams";
 import Videos from "@pages/social/videos/Videos";
 import ProtectedRoute from "@pages/ProtectedRoute";
+import Error from "@pages/error/Error";
 // import { Suspense, lazy } from "react";
 
 export const AppRouter = () => {
@@ -72,6 +73,10 @@ export const AppRouter = () => {
           element: <Profile />
         }
       ]
+    },
+    {
+      path: "*",
+      element: <Error />
     }
   ]);
   return elements;
