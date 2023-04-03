@@ -1,4 +1,5 @@
 import { useRoutes } from "react-router-dom";
+import { Suspense } from "react";
 import { AuthTabs, ForgotPassword, ResetPassword } from "@pages/auth";
 import Chat from "@pages/social/chat/Chat";
 import Followers from "@pages/social/followers/Followers";
@@ -12,6 +13,7 @@ import Streams from "@pages/social/streams/Streams";
 import Videos from "@pages/social/videos/Videos";
 import ProtectedRoute from "@pages/ProtectedRoute";
 import Error from "@pages/error/Error";
+import StreamsSkeleton from "@pages/social/streams/StreamsSkeleton";
 // import { Suspense, lazy } from "react";
 
 export const AppRouter = () => {
@@ -38,7 +40,11 @@ export const AppRouter = () => {
       children: [
         {
           path: "streams",
-          element: <Streams />
+          element: (
+            <Suspense fallback={<StreamsSkeleton />}>
+              <Streams />
+            </Suspense>
+          )
         },
         {
           path: "chat/messages",
