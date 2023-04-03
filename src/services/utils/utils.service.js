@@ -68,4 +68,12 @@ export class Utils {
     items.push(item);
     return setSettings(items);
   }
+
+  static appImageUrl(version, id) {
+    if (typeof version === "string" && typeof id === "string") {
+      version = version.replace(/['"]+/g, "");
+      id = id.replace(/['"]+/g, "");
+    }
+    return `https://res.cloudinary.com/dandawid/image/upload/v${version}/${id}`;
+  }
 }

@@ -1,6 +1,7 @@
 import { notificationService } from "@services/api/notifications/notifications.service";
 import { socketService } from "@services/socket/socket.service";
 import { cloneDeep, find, findIndex, remove, sumBy } from "lodash";
+import { timeAgo } from "./timeago.utils";
 import { Utils } from "./utils.service";
 
 export class NotificationUtils {
@@ -54,6 +55,7 @@ export class NotificationUtils {
       const item = {
         _id: notification?._id,
         topText: notification?.topText ? notification?.topText : notification?.message,
+        subText: timeAgo.transform(notification?.createdAt),
         createdAt: notification?.createdAt,
         username: notification?.userFrom ? notification?.userFrom.username : notification?.username,
         avatarColor: notification?.userFrom ? notification?.userFrom.avatarColor : notification?.avatarColor,
