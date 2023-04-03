@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Avatar from "@components/avatar/Avatar";
 import "@pages/social/notifications/Notifications.scss";
 import { FaCircle, FaRegCircle, FaRegTrashAlt } from "react-icons/fa";
@@ -6,6 +6,7 @@ import { Utils } from "@services/utils/utils.service";
 import { useDispatch, useSelector } from "react-redux";
 import useEffectOnce from "@hooks/useEffectOnce";
 import { notificationService } from "@services/api/notifications/notifications.service";
+import { NotificationUtils } from "@services/utils/notification-utils.service";
 
 const Notification = () => {
   const { profile } = useSelector((state) => state.user);
@@ -30,18 +31,45 @@ const Notification = () => {
       Utils.dispatchNotification(error.response.data.message, "error", dispatch);
     }
   };
-  console.log(profile);
+
+  const markAsRead = async (notification) => {
+    try {
+      NotificationUtils.markMessageAsRead(notification?._id);
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, "error", dispatch);
+    }
+  };
+
+  const deleteNotification = async (event, messageId) => {
+    event.stopPropagation();
+    try {
+      const response = await notificationService.deleteNotification(messageId);
+      Utils.dispatchNotification(response.data.message, "success", dispatch);
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, "error", dispatch);
+    }
+  };
+
   useEffectOnce(() => {
     getUserNotifications();
   });
 
+  useEffect(() => {
+    NotificationUtils.socketIONotification(profile, notifications, setNotifications, "notificationPage");
+  }, [profile, notifications]);
+
   return (
     <div className="notifications-container">
       <div className="notifications">Notifications</div>
-      {notifications && notifications.length > 0 && (
+      {notifications.length > 0 && (
         <div className="notifications-box">
-          {[].map((notification, index) => (
-            <div className="notification-box" data-testid="notification-box" key={index}>
+          {notifications.map((notification, index) => (
+            <div
+              className="notification-box"
+              data-testid="notification-box"
+              key={index}
+              onClick={() => markAsRead(notification)}
+            >
               <div className="notification-box-sub-card">
                 <div className="notification-box-sub-card-media">
                   <div className="notification-box-sub-card-media-image-icon">
@@ -56,7 +84,11 @@ const Notification = () => {
                   <div className="notification-box-sub-card-media-body">
                     <h6 className="title">
                       {notification?.message}
-                      <small data-testid="subtitle" className="subtitle">
+                      <small
+                        data-testid="subtitle"
+                        className="subtitle"
+                        onClick={(event) => deleteNotification(event, notification?._id)}
+                      >
                         <FaRegTrashAlt className="trash" />
                       </small>
                     </h6>

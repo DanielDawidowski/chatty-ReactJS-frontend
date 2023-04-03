@@ -1,3 +1,4 @@
+import { notificationService } from "@services/api/notifications/notifications.service";
 import { socketService } from "@services/socket/socket.service";
 import { cloneDeep, find, findIndex, remove } from "lodash";
 
@@ -32,5 +33,9 @@ export class NotificationUtils {
         setNotifications(notifications);
       }
     });
+  }
+
+  static async markMessageAsRead(messageId) {
+    await notificationService.markNotificationAsRead(messageId);
   }
 }
