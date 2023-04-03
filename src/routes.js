@@ -1,20 +1,20 @@
 import { useRoutes } from "react-router-dom";
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import { AuthTabs, ForgotPassword, ResetPassword } from "@pages/auth";
-import Chat from "@pages/social/chat/Chat";
-import Followers from "@pages/social/followers/Followers";
-import Following from "@pages/social/following/Following";
-import Notifications from "@pages/social/notifications/Notifications";
-import People from "@pages/social/people/People";
-import Photos from "@pages/social/photos/Photos";
-import Profile from "@pages/social/profile/Profile";
-import Social from "@pages/social/Social";
-import Streams from "@pages/social/streams/Streams";
-import Videos from "@pages/social/videos/Videos";
-import ProtectedRoute from "@pages/ProtectedRoute";
 import Error from "@pages/error/Error";
 import StreamsSkeleton from "@pages/social/streams/StreamsSkeleton";
-// import { Suspense, lazy } from "react";
+import ProtectedRoute from "@pages/ProtectedRoute";
+
+const Social = lazy(() => import("@pages/social/Social"));
+const Chat = lazy(() => import("@pages/social/chat/Chat"));
+const Followers = lazy(() => import("@pages/social/followers/Followers"));
+const Following = lazy(() => import("@pages/social/following/Following"));
+const Notifications = lazy(() => import("@pages/social/notifications/Notifications"));
+const People = lazy(() => import("@pages/social/people/People"));
+const Photos = lazy(() => import("@pages/social/photos/Photos"));
+const Videos = lazy(() => import("@pages/social/videos/Videos"));
+const Profile = lazy(() => import("@pages/social/profile/Profile"));
+const Streams = lazy(() => import("@pages/social/streams/Streams"));
 
 export const AppRouter = () => {
   const elements = useRoutes([
