@@ -10,6 +10,7 @@ import Profile from "@pages/social/profile/Profile";
 import Social from "@pages/social/Social";
 import Streams from "@pages/social/streams/Streams";
 import Videos from "@pages/social/videos/Videos";
+import ProtectedRoute from "@pages/ProtectedRoute";
 // import { Suspense, lazy } from "react";
 
 export const AppRouter = () => {
@@ -28,7 +29,11 @@ export const AppRouter = () => {
     },
     {
       path: "/app/social",
-      element: <Social />,
+      element: (
+        <ProtectedRoute>
+          <Social />
+        </ProtectedRoute>
+      ),
       children: [
         {
           path: "streams",

@@ -1,13 +1,13 @@
+import { useCallback, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 import useEffectOnce from "@hooks/useEffectOnce";
 import useLocalStorage from "@hooks/useLocalStorage";
 import useSessionStorage from "@hooks/useSessionStorage";
 import { addUser } from "@redux/reducers/user/user.reducer";
 import { userService } from "@services/api/user/user.service";
 import { Utils } from "@services/utils/utils.service";
-import { useCallback, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Navigate, useNavigate } from "react-router-dom";
-import PropTypes from "prop-types";
 
 const ProtectedRoute = ({ children }) => {
   const { profile, token } = useSelector((state) => state.user);
@@ -24,7 +24,7 @@ const ProtectedRoute = ({ children }) => {
   const checkUser = useCallback(async () => {
     try {
       const response = await userService.checkCurrentUser();
-      dispatch(getConversationList());
+      // dispatch conversation list
       setUserData(response.data.user);
       setTokenIsValid(true);
       dispatch(addUser({ token: response.data.token, profile: response.data.user }));
