@@ -1,5 +1,7 @@
-import { avatarColors } from "./static.data";
 import { floor, random } from "lodash";
+import { avatarColors } from "@services/utils/static.data";
+import { addUser, clearUser } from "@redux/reducers/user/user.reducer";
+import { addNotification, clearNotification } from "@redux/reducers/notifications/notifications.reducer";
 
 export class Utils {
   static avatarColor() {
@@ -24,5 +26,54 @@ export class Utils {
     context.fillText(text, canvas.width / 2, canvas.height / 2);
 
     return canvas.toDataURL("image/png");
+  }
+
+  static dispatchUser(result, pageReload, dispatch, setUser) {
+    pageReload(true);
+    dispatch(addUser({ token: result.data.token, profile: result.data.user }));
+    setUser(result.data.user);
+  }
+
+  static clearStore({ dispatch, deleteStorageUsername, deleteSessionPageReload, setLoggedIn }) {
+    dispatch(clearUser());
+    dispatch(clearNotification());
+    deleteStorageUsername();
+    deleteSessionPageReload();
+    setLoggedIn(false);
+  }
+
+  static dispatchNotification(message, type, dispatch) {
+    dispatch(addNotification({ message, type }));
+  }
+
+  static dispatchClearNotification(dispatch) {
+    dispatch(clearNotification());
+  }
+
+  static appEnvironment() {
+    const env = process.env.REACT_APP_ENVIRONMENT;
+    if (env === "development") {
+      return "DEV";
+    } else if (env === "staging") {
+      return "STG";
+    }
+  }
+
+  static mapSettingsDropdownItems(setSettings) {
+    const items = [];
+    const item = {
+      topText: "My Profile",
+      subText: "View personal profile."
+    };
+    items.push(item);
+    return setSettings(items);
+  }
+
+  static appImageUrl(version, id) {
+    if (typeof version === "string" && typeof id === "string") {
+      version = version.replace(/['"]+/g, "");
+      id = id.replace(/['"]+/g, "");
+    }
+    return `https://res.cloudinary.com/dandawid/image/upload/v${version}/${id}`;
   }
 }
