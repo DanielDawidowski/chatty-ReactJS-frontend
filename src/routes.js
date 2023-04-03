@@ -48,35 +48,67 @@ export const AppRouter = () => {
         },
         {
           path: "chat/messages",
-          element: <Chat />
+          element: (
+            <Suspense>
+              <Chat />
+            </Suspense>
+          )
         },
         {
           path: "people",
-          element: <People />
+          element: (
+            <Suspense>
+              <People />
+            </Suspense>
+          )
         },
         {
           path: "followers",
-          element: <Followers />
+          element: (
+            <Suspense>
+              <Followers />
+            </Suspense>
+          )
         },
         {
           path: "following",
-          element: <Following />
+          element: (
+            <Suspense>
+              <Following />
+            </Suspense>
+          )
         },
         {
           path: "photos",
-          element: <Photos />
+          element: (
+            <Suspense>
+              <Photos />
+            </Suspense>
+          )
         },
         {
           path: "videos",
-          element: <Videos />
+          element: (
+            <Suspense>
+              <Videos />
+            </Suspense>
+          )
         },
         {
           path: "notifications",
-          element: <Notifications />
+          element: (
+            <Suspense>
+              <Notifications />
+            </Suspense>
+          )
         },
         {
           path: "profile/:username",
-          element: <Profile />
+          element: (
+            <Suspense>
+              <Profile />
+            </Suspense>
+          )
         }
       ]
     },
