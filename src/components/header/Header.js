@@ -50,7 +50,7 @@ const Header = () => {
       await userService.logoutUser();
       navigate("/");
     } catch (error) {
-      // Utils.dispatchNotification(error.response.data.message, "error", dispatch);
+      Utils.dispatchNotification(error.response.data.message, "error", dispatch);
       console.log(error);
     }
   };
