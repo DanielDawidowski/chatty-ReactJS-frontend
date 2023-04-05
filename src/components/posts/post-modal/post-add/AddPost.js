@@ -29,6 +29,8 @@ function AddPost() {
   const [disable, setDisable] = useState(true);
   const [selectedPostImage, setSelectedPostImage] = useState();
   const counterRef = useRef(null);
+  const inputRef = useRef(null);
+  const imageInputRef = useRef(null);
   const dispatch = useDispatch();
 
   const maxNumberOfCharacters = 100;
@@ -57,13 +59,19 @@ function AddPost() {
     PostUtils.closePostModal(dispatch);
   };
 
+  const clearImage = () => {
+    PostUtils.clearImage(postData, "", inputRef, dispatch, setSelectedPostImage, setPostImage, setPostData);
+  };
+
   useEffect(() => {
     if (gifUrl) {
       setPostImage(gifUrl);
+      PostUtils.postInputData(imageInputRef, postData, "", setPostData);
     } else if (image) {
       setPostImage(image);
+      PostUtils.postInputData(imageInputRef, postData, "", setPostData);
     }
-  }, [gifUrl, image]);
+  }, [gifUrl, image, postData]);
 
   return (
     <PostWrapper>
@@ -97,6 +105,10 @@ function AddPost() {
                     <div
                       data-testid="editable"
                       id="editable"
+                      ref={(el) => {
+                        inputRef.current = el;
+                        inputRef?.current?.focus();
+                      }}
                       name="post"
                       className={`editable flex-item  ${textAreaBackground !== "#ffffff" ? "textInputColor" : ""}`}
                       contentEditable={true}
@@ -117,7 +129,11 @@ function AddPost() {
                   data-testid="post-editable"
                   id="editable"
                   name="post"
-                  className={`post-input flex-item`}
+                  ref={(el) => {
+                    imageInputRef.current = el;
+                    imageInputRef?.current?.focus();
+                  }}
+                  className="post-input flex-item"
                   contentEditable={true}
                   data-placeholder="What's on your mind?..."
                 ></div>
@@ -126,7 +142,7 @@ function AddPost() {
                     className="image-delete-btn"
                     data-testid="image-delete-btn"
                     style={{ marginTop: "-40px" }}
-                    // onClick={() => clearImage()}
+                    onClick={() => clearImage()}
                   >
                     <FaTimes />
                   </div>
