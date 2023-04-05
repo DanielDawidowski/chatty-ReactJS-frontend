@@ -1,6 +1,5 @@
-/* eslint-disable no-unused-vars */
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect, useRef } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { FaTimes } from "react-icons/fa";
 // import PropTypes from "prop-types";
 import PostWrapper from "@components/posts/modal-wrappers/post-wrapper/PostWrapper";
@@ -13,7 +12,8 @@ import { PostUtils } from "@services/utils/post-utils.service";
 
 function AddPost() {
   const { gifModalIsOpen } = useSelector((state) => state.modal);
-  const [postImage] = useState("");
+  const { gifUrl, image } = useSelector((state) => state.post);
+  const [postImage, setPostImage] = useState("");
   const [loading] = useState(false);
   const [allowedNumberOfCharacters] = useState("100/100");
   const [textAreaBackground, setTextAreaBackground] = useState("#ffffff");
@@ -28,11 +28,42 @@ function AddPost() {
   });
   const [disable, setDisable] = useState(true);
   const [selectedPostImage, setSelectedPostImage] = useState();
+  const counterRef = useRef(null);
+  const dispatch = useDispatch();
+
+  const maxNumberOfCharacters = 100;
 
   const selectBackground = (bgColor) => {
     console.log(selectedPostImage);
     PostUtils.selectBackground(bgColor, postData, setTextAreaBackground, setPostData, setDisable);
   };
+
+  const postInputEditable = (event, textContent) => {
+    const currentTextLength = event.target.textContent.length;
+    const counter = maxNumberOfCharacters - currentTextLength;
+    counterRef.current.textContent = `${counter}/100`;
+    setDisable(currentTextLength <= 0 && !postImage);
+    PostUtils.postInputEditable(textContent, postData, setPostData);
+  };
+
+  const onKeyDown = (event) => {
+    const currentTextLength = event.target.textContent.length;
+    if (currentTextLength === maxNumberOfCharacters && event.keyCode !== 8) {
+      event.preventDefault();
+    }
+  };
+
+  const closePostModal = () => {
+    PostUtils.closePostModal(dispatch);
+  };
+
+  useEffect(() => {
+    if (gifUrl) {
+      setPostImage(gifUrl);
+    } else if (image) {
+      setPostImage(image);
+    }
+  }, [gifUrl, image]);
 
   return (
     <PostWrapper>
@@ -46,7 +77,9 @@ function AddPost() {
           )}
           <div className="modal-box-header">
             <h2>Create Post</h2>
-            <button className="modal-box-header-cancel">X</button>
+            <button className="modal-box-header-cancel" onClick={() => closePostModal()}>
+              X
+            </button>
           </div>
           <hr />
 
@@ -67,7 +100,9 @@ function AddPost() {
                       name="post"
                       className={`editable flex-item  ${textAreaBackground !== "#ffffff" ? "textInputColor" : ""}`}
                       contentEditable={true}
+                      onKeyDown={onKeyDown}
                       data-placeholder="What's on your mind?..."
+                      onInput={(event) => postInputEditable(event, event.currentTarget.textContent)}
                     ></div>
                   </div>
                 </div>
@@ -95,7 +130,7 @@ function AddPost() {
                   >
                     <FaTimes />
                   </div>
-                  <img data-testid="post-image" className="post-image" src="" alt="" />
+                  <img data-testid="post-image" className="post-image" src={`${postImage}`} alt="" />
                 </div>
               </div>
             </>
@@ -114,7 +149,7 @@ function AddPost() {
               ))}
             </ul>
           </div>
-          <span className="char_count" data-testid="allowed-number">
+          <span className="char_count" data-testid="allowed-number" ref={counterRef}>
             {allowedNumberOfCharacters}
           </span>
 
