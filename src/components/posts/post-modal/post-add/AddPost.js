@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { FaTimes } from "react-icons/fa";
@@ -8,12 +9,29 @@ import ModalBoxContent from "../modal-box-content/ModalBoxContent";
 import { bgColors } from "@services/utils/static.data";
 import ModalBoxSelection from "../modal-box-content/ModalBoxSelection";
 import Button from "@components/button/Button";
+import { PostUtils } from "@services/utils/post-utils.service";
 
 function AddPost() {
   const { gifModalIsOpen } = useSelector((state) => state.modal);
   const [postImage] = useState("");
   const [loading] = useState(false);
   const [allowedNumberOfCharacters] = useState("100/100");
+  const [textAreaBackground, setTextAreaBackground] = useState("#ffffff");
+  const [postData, setPostData] = useState({
+    post: "",
+    bgColor: textAreaBackground,
+    privacy: "",
+    feelings: "",
+    gifUrl: "",
+    profilePicture: "",
+    image: ""
+  });
+  const [disable, setDisable] = useState(true);
+
+  const selectBackground = (bgColor) => {
+    PostUtils.selectBackground(bgColor, postData, setTextAreaBackground, setPostData, setDisable);
+  };
+
   return (
     <PostWrapper>
       <div></div>
@@ -29,17 +47,23 @@ function AddPost() {
             <button className="modal-box-header-cancel">X</button>
           </div>
           <hr />
+
           <ModalBoxContent />
+
           {!postImage && (
             <>
-              <div className="modal-box-form" data-testid="modal-box-form">
-                <div className="main">
+              <div
+                className="modal-box-form"
+                data-testid="modal-box-form"
+                style={{ background: `${textAreaBackground}` }}
+              >
+                <div className="main" style={{ margin: textAreaBackground !== "#ffffff" ? "0 auto" : "" }}>
                   <div className="flex-row">
                     <div
                       data-testid="editable"
                       id="editable"
                       name="post"
-                      className={`editable flex-item`}
+                      className={`editable flex-item  ${textAreaBackground !== "#ffffff" ? "textInputColor" : ""}`}
                       contentEditable={true}
                       data-placeholder="What's on your mind?..."
                     ></div>
@@ -83,6 +107,7 @@ function AddPost() {
                   key={index}
                   className={`${color === "#ffffff" ? "whiteColorBorder" : ""}`}
                   style={{ backgroundColor: `${color}` }}
+                  onClick={() => selectBackground(color)}
                 ></li>
               ))}
             </ul>
@@ -94,7 +119,7 @@ function AddPost() {
           <ModalBoxSelection />
 
           <div className="modal-box-button" data-testid="post-button">
-            <Button label="Create Post" className="post-button" disabled={true} />
+            <Button label="Create Post" className="post-button" disabled={disable} />
           </div>
         </div>
       )}
