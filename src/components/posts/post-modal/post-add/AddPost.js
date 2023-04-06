@@ -43,7 +43,7 @@ function AddPost({ selectedImage }) {
   const maxNumberOfCharacters = 100;
 
   const selectBackground = (bgColor) => {
-    PostUtils.selectBackground(bgColor, postData, setTextAreaBackground, setPostData, setDisable);
+    PostUtils.selectBackground(bgColor, postData, setTextAreaBackground, setPostData);
   };
 
   const postInputEditable = (event, textContent) => {
@@ -113,6 +113,10 @@ function AddPost({ selectedImage }) {
   };
 
   useEffect(() => {
+    PostUtils.positionCursor("editable");
+  }, []);
+
+  useEffect(() => {
     if (!loading && apiResponse === "success") {
       dispatch(closeModal());
     }
@@ -172,7 +176,9 @@ function AddPost({ selectedImage }) {
                         inputRef?.current?.focus();
                       }}
                       name="post"
-                      className={`editable flex-item  ${textAreaBackground !== "#ffffff" ? "textInputColor" : ""}`}
+                      className={`editable flex-item ${textAreaBackground !== "#ffffff" ? "textInputColor" : ""} ${
+                        postData.post.length === 0 && textAreaBackground !== "#ffffff" ? "defaultInputTextColor" : ""
+                      }`}
                       contentEditable={true}
                       onKeyDown={onKeyDown}
                       data-placeholder="What's on your mind?..."
@@ -222,7 +228,10 @@ function AddPost({ selectedImage }) {
                   key={index}
                   className={`${color === "#ffffff" ? "whiteColorBorder" : ""}`}
                   style={{ backgroundColor: `${color}` }}
-                  onClick={() => selectBackground(color)}
+                  onClick={() => {
+                    PostUtils.positionCursor("editable");
+                    selectBackground(color);
+                  }}
                 ></li>
               ))}
             </ul>

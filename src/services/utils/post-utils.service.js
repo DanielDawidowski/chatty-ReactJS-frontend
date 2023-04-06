@@ -4,11 +4,10 @@ import { postService } from "@services/api/post/post.service";
 import { Utils } from "./utils.service";
 
 export class PostUtils {
-  static selectBackground(bgColor, postData, setTextAreaBackground, setPostData, setDisable) {
+  static selectBackground(bgColor, postData, setTextAreaBackground, setPostData) {
     postData.bgColor = bgColor;
     setTextAreaBackground(bgColor);
     setPostData(postData);
-    setDisable(false);
   }
 
   static postInputEditable(textContent, postData, setPostData) {
@@ -34,6 +33,7 @@ export class PostUtils {
         }
         setPostData(postData);
       }
+      PostUtils.positionCursor("editable");
     });
     dispatch(updatePostItem({ gifUrl: "", image: "", imgId: "", imgVersion: "" }));
   }
@@ -46,6 +46,7 @@ export class PostUtils {
           postData.post = post;
         }
         setPostData(postData);
+        PostUtils.positionCursor("editable");
       }
     });
   }
@@ -77,5 +78,16 @@ export class PostUtils {
     const isFollower =
       post?.privacy === "Followers" && Utils.checkIfUserIsFollowed(following, post?.userId, profile?._id);
     return isPrivate || isPublic || isFollower;
+  }
+
+  static positionCursor(elementId) {
+    const element = document.getElementById(`${elementId}`);
+    const selection = window.getSelection();
+    const range = document.createRange();
+    selection.removeAllRanges();
+    range.selectNodeContents(element);
+    range.collapse(false);
+    selection.addRange(range);
+    element.focus();
   }
 }
