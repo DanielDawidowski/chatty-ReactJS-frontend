@@ -8,9 +8,10 @@ import Input from "@components/input/Input";
 import useDetectOutsideClick from "@hooks/useDetectOutsideClick";
 import Feelings from "@components/feelings/Feelings";
 import { ImageUtils } from "@services/utils/image-utils.service";
+import { toggleGifModal } from "@redux/reducers/modal/modal.reducer";
 
 function ModalBoxSelection({ setSelectedPostImage }) {
-  const { feelingsIsOpen } = useSelector((state) => state.modal);
+  const { feelingsIsOpen, gifModalIsOpen } = useSelector((state) => state.modal);
   const { post } = useSelector((state) => state.post);
   const feelingsRef = useRef(null);
   const fileInputRef = useRef();
@@ -49,7 +50,8 @@ function ModalBoxSelection({ setSelectedPostImage }) {
             />
             <img src={photo} alt="" /> Photo
           </li>
-          <li className="post-form-list-item">
+
+          <li className="post-form-list-item" onClick={() => dispatch(toggleGifModal(!gifModalIsOpen))}>
             <img src={gif} alt="" /> Gif
           </li>
           <li className="post-form-list-item" onClick={() => setToggleFeelings(!toggleFeelings)}>
