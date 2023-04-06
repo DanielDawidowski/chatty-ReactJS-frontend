@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { Utils } from "@services/utils/utils.service";
 import Post from "@components/posts/post/Post";
-// import { PostUtils } from "@services/utils/post-utils.service";
 // import PostSkeleton from "@components/posts/post/PostSkeleton";
 import "@components/posts/Posts.scss";
+import { PostUtils } from "@services/utils/post-utils.service";
 
 const Posts = ({ allPosts, userFollowing, postsLoading }) => {
   const { profile } = useSelector((state) => state.user);
@@ -14,11 +14,10 @@ const Posts = ({ allPosts, userFollowing, postsLoading }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // console.log(profile, following);
     setPosts(allPosts);
     setFollowing(userFollowing);
     setLoading(postsLoading);
-  }, [allPosts, userFollowing, postsLoading, following, profile]);
+  }, [allPosts, userFollowing, postsLoading]);
 
   return (
     <div className="posts-container" data-testid="posts">
@@ -26,9 +25,15 @@ const Posts = ({ allPosts, userFollowing, postsLoading }) => {
         posts.length > 0 &&
         posts.map((post) => (
           <div key={Utils.generateString(10)} data-testid="posts-item">
-            <>
-              <Post post={post} showIcons={false} />
-            </>
+            {(!Utils.checkIfUserIsBlocked(profile?.blockedBy, post?.userId) || post?.userId === profile?._id) && (
+              <>
+                {PostUtils.checkPrivacy(post, profile, following) && (
+                  <>
+                    <Post post={post} showIcons={false} />
+                  </>
+                )}
+              </>
+            )}
           </div>
         ))}
 

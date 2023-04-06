@@ -70,4 +70,12 @@ export class PostUtils {
       PostUtils.dispatchNotification(error.response.data.message, "error", setApiResponse, setLoading, dispatch);
     }
   }
+
+  static checkPrivacy(post, profile, following) {
+    const isPrivate = post?.privacy === "Private" && post?.userId === profile?._id;
+    const isPublic = post?.privacy === "Public";
+    const isFollower =
+      post?.privacy === "Followers" && Utils.checkIfUserIsFollowed(following, post?.userId, profile?._id);
+    return isPrivate || isPublic || isFollower;
+  }
 }
