@@ -1,5 +1,7 @@
 import { closeModal } from "@redux/reducers/modal/modal.reducer";
 import { clearPost, updatePostItem } from "@redux/reducers/post/post.reducer";
+import { postService } from "@services/api/post/post.service";
+import { Utils } from "./utils.service";
 
 export class PostUtils {
   static selectBackground(bgColor, postData, setTextAreaBackground, setPostData, setDisable) {
@@ -46,5 +48,26 @@ export class PostUtils {
         setPostData(postData);
       }
     });
+  }
+
+  static dispatchNotification(message, type, setApiResponse, setLoading, dispatch) {
+    setApiResponse(type);
+    setLoading(false);
+    Utils.dispatchNotification(message, type, dispatch);
+  }
+
+  static async sendPostWithFileRequest(type, postData, imageInputRef, setApiResponse, setLoading, dispatch) {
+    try {
+      if (imageInputRef?.current) {
+        imageInputRef.current.textContent = postData.post;
+      }
+      const response = await postService.createPostWithImage(postData);
+      if (response) {
+        setApiResponse("success");
+        setLoading(false);
+      }
+    } catch (error) {
+      PostUtils.dispatchNotification(error.response.data.message, "error", setApiResponse, setLoading, dispatch);
+    }
   }
 }
