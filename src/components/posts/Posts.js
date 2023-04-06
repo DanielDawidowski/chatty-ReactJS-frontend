@@ -3,8 +3,8 @@ import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { Utils } from "@services/utils/utils.service";
 import Post from "@components/posts/post/Post";
-import { PostUtils } from "@services/utils/post-utils.service";
-import PostSkeleton from "@components/posts/post/PostSkeleton";
+// import { PostUtils } from "@services/utils/post-utils.service";
+// import PostSkeleton from "@components/posts/post/PostSkeleton";
 import "@components/posts/Posts.scss";
 
 const Posts = ({ allPosts, userFollowing, postsLoading }) => {
@@ -18,7 +18,7 @@ const Posts = ({ allPosts, userFollowing, postsLoading }) => {
     setPosts(allPosts);
     setFollowing(userFollowing);
     setLoading(postsLoading);
-  }, [allPosts, userFollowing, postsLoading]);
+  }, [allPosts, userFollowing, postsLoading, following, profile]);
 
   return (
     <div className="posts-container" data-testid="posts">
@@ -32,13 +32,13 @@ const Posts = ({ allPosts, userFollowing, postsLoading }) => {
           </div>
         ))}
 
-      {loading &&
+      {/* {loading &&
         !posts.length &&
         [1, 2, 3, 4, 5, 6].map((index) => (
           <div key={index}>
             <PostSkeleton />
           </div>
-        ))}
+        ))} */}
     </div>
   );
 };
