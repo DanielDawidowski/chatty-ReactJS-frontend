@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { FaArrowLeft, FaTimes } from "react-icons/fa";
-// import PropTypes from "prop-types";
+import PropTypes from "prop-types";
 import PostWrapper from "@components/posts/modal-wrappers/post-wrapper/PostWrapper";
 import "@components/posts/post-modal/post-add/AddPost.scss";
 import ModalBoxContent from "../modal-box-content/ModalBoxContent";
@@ -12,7 +12,7 @@ import { PostUtils } from "@services/utils/post-utils.service";
 import Giphy from "@components/giphy/Giphy";
 import { toggleGifModal } from "@redux/reducers/modal/modal.reducer";
 
-function AddPost() {
+function AddPost({ selectedImage }) {
   const { gifModalIsOpen } = useSelector((state) => state.modal);
   const { gifUrl, image } = useSelector((state) => state.post);
   const [postImage, setPostImage] = useState("");
@@ -39,6 +39,7 @@ function AddPost() {
 
   const selectBackground = (bgColor) => {
     console.log(selectedPostImage);
+    console.log(selectedImage);
     PostUtils.selectBackground(bgColor, postData, setTextAreaBackground, setPostData, setDisable);
   };
 
@@ -196,5 +197,9 @@ function AddPost() {
     </PostWrapper>
   );
 }
+
+AddPost.propTypes = {
+  selectedImage: PropTypes.string
+};
 
 export default AddPost;

@@ -1,22 +1,44 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import photo from "@assets/images/photo.png";
 import gif from "@assets/images/gif.png";
 import feeling from "@assets/images/feeling.png";
 import Avatar from "@components/avatar/Avatar";
 import Input from "@components/input/Input";
-import { openModal } from "@redux/reducers/modal/modal.reducer";
+import { openModal, toggleFeelingModal, toggleGifModal, toggleImageModal } from "@redux/reducers/modal/modal.reducer";
 import "@components/posts/post-form/PostForm.scss";
 import AddPost from "../post-modal/post-add/AddPost";
+import { ImageUtils } from "@services/utils/image-utils.service";
 
 function PostForm() {
   const { profile } = useSelector((state) => state.user);
-  const { type, isOpen } = useSelector((state) => state.modal);
-
+  const { type, isOpen, openFileDialog, gifModalIsOpen, feelingsIsOpen } = useSelector((state) => state.modal);
+  const [selectedPostImage, setSelectedPostImage] = useState();
+  const fileInputRef = useRef();
   const dispatch = useDispatch();
 
   const openPostModal = () => {
     dispatch(openModal({ type: "add" }));
+  };
+
+  const openImageModal = () => {
+    fileInputRef.current.click();
+    dispatch(openModal({ type: "add" }));
+    dispatch(toggleImageModal(!openFileDialog));
+  };
+
+  const openFeelingsComponent = () => {
+    dispatch(openModal({ type: "add" }));
+    dispatch(toggleFeelingModal(!feelingsIsOpen));
+  };
+
+  const openGifModal = () => {
+    dispatch(openModal({ type: "add" }));
+    dispatch(toggleGifModal(!gifModalIsOpen));
+  };
+
+  const handleFileChange = (event) => {
+    ImageUtils.addFileToRedux(event, "", setSelectedPostImage, dispatch, "image");
   };
 
   return (
@@ -39,21 +61,32 @@ function PostForm() {
             </div>
             <hr />
             <ul className="post-form-list" data-testid="list-item">
-              <li className="post-form-list-item image-select">
-                <Input name="image" type="file" className="file-input" />
+              <li className="post-form-list-item image-select" onClick={() => openImageModal()}>
+                <Input
+                  name="image"
+                  type="file"
+                  className="file-input"
+                  ref={fileInputRef}
+                  onClick={() => {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = null;
+                    }
+                  }}
+                  handleChange={handleFileChange}
+                />
                 <img src={photo} alt={photo} /> Photo
               </li>
-              <li className="post-form-list-item">
+              <li className="post-form-list-item" onClick={() => openGifModal()}>
                 <img src={gif} alt={gif} /> Gif
               </li>
-              <li className="post-form-list-item">
+              <li className="post-form-list-item" onClick={() => openFeelingsComponent()}>
                 <img src={feeling} alt={feeling} /> Feeling
               </li>
             </ul>
           </div>
         </div>
       </div>
-      {isOpen && type === "add" && <AddPost />}
+      {isOpen && type === "add" && <AddPost selectedImage={selectedPostImage} />}
     </>
   );
 }
