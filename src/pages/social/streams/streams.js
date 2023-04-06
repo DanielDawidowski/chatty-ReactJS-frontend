@@ -24,10 +24,12 @@ function Streams() {
   const dispatch = useDispatch();
   let appPosts = useRef([]);
   useInfiniteScroll(bodyRef, bottomLineRef, fetchPostData);
-  const PAGE_SIZE = 10;
+
+  const PAGE_SIZE = 8;
 
   function fetchPostData() {
     let pageNum = currentPage;
+    console.log(currentPage, Math.round(totalPostsCount / PAGE_SIZE));
     if (currentPage <= Math.round(totalPostsCount / PAGE_SIZE)) {
       pageNum += 1;
       setCurrentPage(pageNum);
@@ -42,6 +44,7 @@ function Streams() {
         appPosts = [...posts, ...response.data.posts];
         const allPosts = uniqBy(appPosts, "_id");
         setPosts(allPosts);
+        console.log(allPosts);
       }
       setLoading(false);
     } catch (error) {
@@ -51,7 +54,6 @@ function Streams() {
 
   useEffectOnce(() => {
     dispatch(getUserSuggestions());
-    getAllPosts();
   });
 
   useEffect(() => {
