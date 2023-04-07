@@ -94,4 +94,9 @@ export class Utils {
   static checkIfUserIsFollowed(userFollowers, postCreatorId, userId) {
     return some(userFollowers, (user) => user._id === postCreatorId || postCreatorId === userId);
   }
+
+  static firstLetterUpperCase(word) {
+    if (!word) return "";
+    return `${word.charAt(0).toUpperCase()}${word.slice(1)}`;
+  }
 }
