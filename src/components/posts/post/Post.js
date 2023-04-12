@@ -9,9 +9,11 @@ import { feelingsList, privacyList } from "@services/utils/static.data";
 import "@components/posts/post/Post.scss";
 import PostCommentSection from "../post-comment-section/PostCommentSection";
 import ReactionsModal from "../reactions/reactions-modal/ReactionsModal";
+import { Utils } from "@services/utils/utils.service";
 
 function Post({ post, showIcons }) {
   const { reactionsModalIsOpen } = useSelector((state) => state.modal);
+
   const getFeeling = (name) => {
     const feeling = find(feelingsList, (data) => data.name === name);
     return feeling?.image;
@@ -80,8 +82,13 @@ function Post({ post, showIcons }) {
               )}
 
               {post?.imgId && !post?.gifUrl && post.bgColor === "#ffffff" && (
-                <div data-testid="post-image" className="image-display-flex">
-                  <img className="post-image" src="" alt="" />
+                <div data-testid="post-image" className="image-display-flex" style={{ height: "600px" }}>
+                  <img
+                    className="post-image"
+                    style={{ objectFit: "contain" }}
+                    src={`${Utils.getImage(post.imgId, post.imgVersion)}`}
+                    alt=""
+                  />
                 </div>
               )}
 
