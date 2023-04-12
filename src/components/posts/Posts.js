@@ -6,6 +6,7 @@ import Post from "@components/posts/post/Post";
 // import PostSkeleton from "@components/posts/post/PostSkeleton";
 import "@components/posts/Posts.scss";
 import { PostUtils } from "@services/utils/post-utils.service";
+import PostSkeleton from "@components/posts/post/PostSkeleton";
 
 const Posts = ({ allPosts, userFollowing, postsLoading }) => {
   const { profile } = useSelector((state) => state.user);
@@ -37,13 +38,13 @@ const Posts = ({ allPosts, userFollowing, postsLoading }) => {
           </div>
         ))}
 
-      {/* {loading &&
+      {loading &&
         !posts.length &&
         [1, 2, 3, 4, 5, 6].map((index) => (
           <div key={index}>
             <PostSkeleton />
           </div>
-        ))} */}
+        ))}
     </div>
   );
 };
