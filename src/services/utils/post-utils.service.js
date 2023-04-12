@@ -74,6 +74,37 @@ export class PostUtils {
     }
   }
 
+  static async sendUpdatePostWithFileRequest(type, postId, postData, setApiResponse, setLoading, dispatch) {
+    try {
+      const response =
+        type === "image"
+          ? await postService.updatePostWithImage(postId, postData)
+          : await postService.updatePostWithVideo(postId, postData);
+      if (response) {
+        PostUtils.dispatchNotification(response.data.message, "success", setApiResponse, setLoading, dispatch);
+        setTimeout(() => {
+          setApiResponse("success");
+          setLoading(false);
+        }, 3000);
+        PostUtils.closePostModal(dispatch);
+      }
+    } catch (error) {
+      PostUtils.dispatchNotification(error.response.data.message, "error", setApiResponse, setLoading, dispatch);
+    }
+  }
+
+  static async sendUpdatePostRequest(postId, postData, setApiResponse, setLoading, dispatch) {
+    const response = await postService.updatePost(postId, postData);
+    if (response) {
+      PostUtils.dispatchNotification(response.data.message, "success", setApiResponse, setLoading, dispatch);
+      setTimeout(() => {
+        setApiResponse("success");
+        setLoading(false);
+      }, 3000);
+      PostUtils.closePostModal(dispatch);
+    }
+  }
+
   static checkPrivacy(post, profile, following) {
     const isPrivate = post?.privacy === "Private" && post?.userId === profile?._id;
     const isPublic = post?.privacy === "Public";

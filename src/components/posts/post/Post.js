@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { find } from "lodash";
 import Avatar from "@components/avatar/Avatar";
 import { FaPencilAlt, FaRegTrashAlt } from "react-icons/fa";
@@ -14,13 +14,17 @@ import CommentInputBox from "@components/posts/comments/comments-input-box/Comme
 import useLocalStorage from "@hooks/useLocalStorage";
 import CommentsModal from "@components/posts/comments/comments-modal/CommentsModal";
 import ImageModal from "@components/image-modal/ImageModal";
+import { openModal, toggleDeleteDialog } from "@redux/reducers/modal/modal.reducer";
+import { updatePostItem } from "@redux/reducers/post/post.reducer";
+// import { postService } from "@services/api/post/post.service";
 
 function Post({ post, showIcons }) {
-  const { commentsModalIsOpen, reactionsModalIsOpen } = useSelector((state) => state.modal);
+  // const { _id } = useSelector((state) => state.post);
+  const { commentsModalIsOpen, reactionsModalIsOpen, deleteDialogIsOpen } = useSelector((state) => state.modal);
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
   const selectedPostId = useLocalStorage("selectedPostId", "get");
-
+  const dispatch = useDispatch();
   const getFeeling = (name) => {
     const feeling = find(feelingsList, (data) => data.name === name);
     return feeling?.image;
@@ -29,6 +33,29 @@ function Post({ post, showIcons }) {
   const getPrivacy = (type) => {
     const privacy = find(privacyList, (data) => data.topText === type);
     return privacy?.icon;
+  };
+
+  // const deletePost = async () => {
+  //   try {
+  //     const response = await postService.deletePost(_id);
+  //     if (response) {
+  //       Utils.dispatchNotification(response.data.message, "success", dispatch);
+  //       dispatch(toggleDeleteDialog({ toggle: !deleteDialogIsOpen }));
+  //       dispatch(clearPost());
+  //     }
+  //   } catch (error) {
+  //     Utils.dispatchNotification(error.response.data.message, "error", dispatch);
+  //   }
+  // };
+
+  const openPostModal = () => {
+    dispatch(openModal({ type: "edit" }));
+    dispatch(updatePostItem(post));
+  };
+
+  const openDeleteDialog = () => {
+    dispatch(toggleDeleteDialog({ toggle: !deleteDialogIsOpen }));
+    dispatch(updatePostItem(post));
   };
 
   return (
@@ -63,8 +90,8 @@ function Post({ post, showIcons }) {
                 </h5>
                 {showIcons && (
                   <div className="post-icons" data-testid="post-icons">
-                    <FaPencilAlt className="pencil" />
-                    <FaRegTrashAlt className="trash" />
+                    <FaPencilAlt className="pencil" onClick={openPostModal} />
+                    <FaRegTrashAlt className="trash" onClick={openDeleteDialog} />
                   </div>
                 )}
               </div>

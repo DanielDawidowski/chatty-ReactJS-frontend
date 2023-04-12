@@ -9,6 +9,7 @@ import { openModal, toggleFeelingModal, toggleGifModal, toggleImageModal } from 
 import "@components/posts/post-form/PostForm.scss";
 import AddPost from "../post-modal/post-add/AddPost";
 import { ImageUtils } from "@services/utils/image-utils.service";
+import EditPost from "../post-modal/post-edit/EditPost";
 
 function PostForm() {
   const { profile } = useSelector((state) => state.user);
@@ -87,6 +88,7 @@ function PostForm() {
         </div>
       </div>
       {isOpen && type === "add" && <AddPost selectedImage={selectedPostImage} />}
+      {isOpen && type === "edit" && <EditPost />}
     </>
   );
 }

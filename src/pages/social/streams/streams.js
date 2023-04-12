@@ -10,7 +10,7 @@ import Posts from "@components/posts/Posts";
 import { postService } from "@services/api/post/post.service";
 import { Utils } from "@services/utils/utils.service";
 import { getPosts } from "@redux/api/posts";
-import { uniqBy } from "lodash";
+import { orderBy, uniqBy } from "lodash";
 import useInfiniteScroll from "@hooks/useInfiniteScroll";
 import { PostUtils } from "@services/utils/post-utils.service";
 import { addReactions } from "@redux/reducers/post/user-post-reaction.reducer";
@@ -79,7 +79,8 @@ function Streams() {
 
   useEffect(() => {
     setLoading(allPosts?.isLoading);
-    setPosts(allPosts?.posts);
+    const orderedPosts = orderBy(allPosts?.posts, ["createdAt"], ["desc"]);
+    setPosts(orderedPosts);
     setTotalPostsCount(allPosts?.totalPostsCount);
   }, [allPosts]);
 

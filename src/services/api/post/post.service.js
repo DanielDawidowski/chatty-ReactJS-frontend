@@ -16,6 +16,21 @@ class PostService {
     return response;
   }
 
+  async updatePostWithImage(postId, body) {
+    const response = await axios.put(`/post/image/${postId}`, body);
+    return response;
+  }
+
+  async updatePost(postId, body) {
+    const response = await axios.put(`/post/${postId}`, body);
+    return response;
+  }
+
+  async updatePostWithVideo(postId, body) {
+    const response = await axios.put(`/post/video/${postId}`, body);
+    return response;
+  }
+
   async getReactionsByUsername(username) {
     const response = await axios.get(`/post/reactions/username/${username}`);
     return response;
