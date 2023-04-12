@@ -114,7 +114,7 @@ export class PostUtils {
     });
 
     socketService?.socket?.on("update like", (reactionData) => {
-      const postData = find(posts, (post) => post._id === reactionData?.postId);
+      const postData = posts.find((post) => post._id === reactionData?.postId);
       if (postData) {
         postData.reactions = reactionData.postReactions;
         PostUtils.updateSinglePost(posts, postData, setPosts);
@@ -122,7 +122,7 @@ export class PostUtils {
     });
 
     socketService?.socket?.on("update comment", (commentData) => {
-      const postData = find(posts, (post) => post._id === commentData?.postId);
+      const postData = posts.find((post) => post._id === commentData?.postId);
       if (postData) {
         postData.commentsCount = commentData.commentsCount;
         PostUtils.updateSinglePost(posts, postData, setPosts);
