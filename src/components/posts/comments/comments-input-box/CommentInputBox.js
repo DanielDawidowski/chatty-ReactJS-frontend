@@ -1,6 +1,6 @@
 import Input from "@components/input/Input";
 import PropTypes from "prop-types";
-import "@components/posts/comments/comment-input/CommentInputBox.scss";
+import "@components/posts/comments/comments-input-box/CommentInputBox.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 import { Utils } from "@services/utils/utils.service";

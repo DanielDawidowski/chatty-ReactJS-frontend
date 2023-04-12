@@ -7,12 +7,15 @@ import { FaPencilAlt, FaRegTrashAlt } from "react-icons/fa";
 import { timeAgo } from "@services/utils/timeago.utils";
 import { feelingsList, privacyList } from "@services/utils/static.data";
 import "@components/posts/post/Post.scss";
-import PostCommentSection from "../post-comment-section/PostCommentSection";
+import PostCommentSection from "@components/posts/post-comment-section/PostCommentSection";
 import ReactionsModal from "../reactions/reactions-modal/ReactionsModal";
 import { Utils } from "@services/utils/utils.service";
+import CommentInputBox from "@components/posts/comments/comments-input-box/CommentInputBox";
+import useLocalStorage from "@hooks/useLocalStorage";
 
 function Post({ post, showIcons }) {
   const { reactionsModalIsOpen } = useSelector((state) => state.modal);
+  const selectedPostId = useLocalStorage("selectedPostId", "get");
 
   const getFeeling = (name) => {
     const feeling = find(feelingsList, (data) => data.name === name);
@@ -102,6 +105,7 @@ function Post({ post, showIcons }) {
               <PostCommentSection post={post} />
             </div>
           </div>
+          {selectedPostId === post?._id && <CommentInputBox post={post} />}
         </div>
       </div>
     </>

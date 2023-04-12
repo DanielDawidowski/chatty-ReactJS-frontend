@@ -1,35 +1,53 @@
-import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { cloneDeep, find } from "lodash";
 import { FaRegCommentAlt } from "react-icons/fa";
-import Reactions from "../reactions/Reactions";
 import "@components/posts/comment-area/CommentArea.scss";
+import Reactions from "@components/posts/reactions/Reactions";
+import { useCallback, useEffect, useState } from "react";
+import { cloneDeep, filter, find } from "lodash";
 import { Utils } from "@services/utils/utils.service";
 import { reactionsMap } from "@services/utils/static.data";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { postService } from "@services/api/post/post.service";
 import { addReactions } from "@redux/reducers/post/user-post-reaction.reducer";
 import { socketService } from "@services/socket/socket.service";
+import useLocalStorage from "@hooks/useLocalStorage";
+import { clearPost, updatePostItem } from "@redux/reducers/post/post.reducer";
 
-function CommentArea({ post }) {
+const CommentArea = ({ post }) => {
   const { profile } = useSelector((state) => state.user);
   let { reactions } = useSelector((state) => state.userPostReactions);
-  const [userSelectedReaction, setUserSelectedReaction] = useState("");
-
+  const [userSelectedReaction, setUserSelectedReaction] = useState("like");
+  const selectedPostId = useLocalStorage("selectedPostId", "get");
+  const [setSelectedPostId] = useLocalStorage("selectedPostId", "set");
   const dispatch = useDispatch();
 
   const selectedUserReaction = useCallback(
     (postReactions) => {
       const userReaction = find(postReactions, (reaction) => reaction.postId === post._id);
-      const result = userReaction ? Utils.firstLetterUpperCase(userReaction.type) : "";
+      const result = userReaction ? Utils.firstLetterUpperCase(userReaction.type) : "Like";
       setUserSelectedReaction(result);
     },
     [post]
   );
 
-  useEffect(() => {
-    selectedUserReaction(reactions);
-  }, [selectedUserReaction, reactions]);
+  const toggleCommentInput = () => {
+    if (!selectedPostId) {
+      setSelectedPostId(post?._id);
+      dispatch(updatePostItem(post));
+    } else {
+      removeSelectedPostId();
+    }
+  };
+
+  const removeSelectedPostId = () => {
+    if (selectedPostId === post?._id) {
+      setSelectedPostId("");
+      dispatch(clearPost());
+    } else {
+      setSelectedPostId(post?._id);
+      dispatch(updatePostItem(post));
+    }
+  };
 
   const addReactionPost = async (reaction) => {
     try {
@@ -97,7 +115,7 @@ function CommentArea({ post }) {
   };
 
   const addNewReaction = (newReaction, hasResponse, previousReaction) => {
-    const postReactions = reactions.filter((reaction) => reaction?.postId !== post?._id);
+    const postReactions = filter(reactions, (reaction) => reaction?.postId !== post?._id);
     const newPostReaction = {
       avatarColor: profile?.avatarColor,
       createdAt: `${new Date()}`,
@@ -137,31 +155,24 @@ function CommentArea({ post }) {
       <div className="like-icon reactions">
         <div className="likes-block" onClick={() => addReactionPost("like")}>
           <div className={`likes-block-icons reaction-icon ${userSelectedReaction.toLowerCase()}`}>
-            {userSelectedReaction && (
-              <div className={`reaction-display ${userSelectedReaction.toLowerCase()}`} data-testid="selected-reaction">
-                <img className="reaction-img" src={reactionsMap[userSelectedReaction.toLowerCase()]} alt="" />
-                <span>{userSelectedReaction}</span>
-              </div>
-            )}
-            {!userSelectedReaction && (
-              <div className="reaction-display" data-testid="default-reaction">
-                <img className="reaction-img" src={`${reactionsMap.like}`} alt="" /> <span>Like</span>
-              </div>
-            )}
+            <div className={`reaction-display ${userSelectedReaction.toLowerCase()} `} data-testid="selected-reaction">
+              <img className="reaction-img" src={reactionsMap[userSelectedReaction.toLowerCase()]} alt="" />
+              <span>{userSelectedReaction}</span>
+            </div>
           </div>
         </div>
         <div className="reactions-container app-reactions">
           <Reactions handleClick={addReactionPost} />
         </div>
       </div>
-      <div className="comment-block">
+      <div className="comment-block" onClick={toggleCommentInput}>
         <span className="comments-text">
           <FaRegCommentAlt className="comment-alt" /> <span>Comments</span>
         </span>
       </div>
     </div>
   );
-}
+};
 
 CommentArea.propTypes = {
   post: PropTypes.object
