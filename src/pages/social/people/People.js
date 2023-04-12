@@ -10,6 +10,8 @@ import { useDispatch } from "react-redux";
 import { userService } from "@services/api/user/user.service";
 import { uniqBy } from "lodash";
 import useEffectOnce from "@hooks/useEffectOnce";
+import { ProfileUtils } from "@services/utils/profile-utils.service";
+import { useNavigate } from "react-router-dom";
 
 function People() {
   const [users, setUsers] = useState([]);
@@ -19,7 +21,9 @@ function People() {
   const [totalUsersCount, setTotalUsersCount] = useState(0);
   const bodyRef = useRef(null);
   const bottomLineRef = useRef(null);
+
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useInfiniteScroll(bodyRef, bottomLineRef, fetchData);
 
@@ -51,6 +55,10 @@ function People() {
       Utils.dispatchNotification(error.response.data.message, "error", dispatch);
     }
   }, [currentPage, dispatch]);
+
+  const followUser = async (user) => {};
+
+  const unFollowUser = async (user) => {};
 
   useEffectOnce(() => {
     getAllUsers();
@@ -90,9 +98,9 @@ function People() {
                 isChecked={Utils.checkIfUserIsFollowed([], data?._id)}
                 btnTextOne="Follow"
                 btnTextTwo="Unfollow"
-                onClickBtnOne={() => {}}
-                onClickBtnTwo={() => {}}
-                onNavigateToProfile={() => {}}
+                onClickBtnOne={() => followUser(data)}
+                onClickBtnTwo={() => unFollowUser(data)}
+                onNavigateToProfile={() => ProfileUtils.navigateToProfile(data, navigate)}
               />
             </div>
           ))}
