@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import { find } from "lodash";
@@ -13,9 +13,12 @@ import { Utils } from "@services/utils/utils.service";
 import CommentInputBox from "@components/posts/comments/comments-input-box/CommentInputBox";
 import useLocalStorage from "@hooks/useLocalStorage";
 import CommentsModal from "@components/posts/comments/comments-modal/CommentsModal";
+import ImageModal from "@components/image-modal/ImageModal";
 
 function Post({ post, showIcons }) {
   const { commentsModalIsOpen, reactionsModalIsOpen } = useSelector((state) => state.modal);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
   const selectedPostId = useLocalStorage("selectedPostId", "get");
 
   const getFeeling = (name) => {
@@ -32,6 +35,9 @@ function Post({ post, showIcons }) {
     <>
       {reactionsModalIsOpen && <ReactionsModal />}
       {commentsModalIsOpen && <CommentsModal />}
+      {showImageModal && (
+        <ImageModal image={`${imageUrl}`} onCancel={() => setShowImageModal(!showImageModal)} showArrow={false} />
+      )}
       <div className="post-body" data-testid="post">
         <div className="user-post-data">
           <div className="user-post-data-wrap">
@@ -87,7 +93,15 @@ function Post({ post, showIcons }) {
               )}
 
               {post?.imgId && !post?.gifUrl && post.bgColor === "#ffffff" && (
-                <div data-testid="post-image" className="image-display-flex" style={{ height: "600px" }}>
+                <div
+                  data-testid="post-image"
+                  className="image-display-flex"
+                  style={{ height: "600px" }}
+                  onClick={() => {
+                    setImageUrl(Utils.getImage(post.imgId, post.imgVersion));
+                    setShowImageModal(!showImageModal);
+                  }}
+                >
                   <img
                     className="post-image"
                     style={{ objectFit: "contain" }}
@@ -98,8 +112,14 @@ function Post({ post, showIcons }) {
               )}
 
               {post?.gifUrl && post.bgColor === "#ffffff" && (
-                <div className="image-display-flex">
-                  <img className="post-image" src={`${post?.gifUrl}`} alt="" />
+                <div
+                  className="image-display-flex"
+                  onClick={() => {
+                    setImageUrl(post?.gifUrl);
+                    setShowImageModal(!showImageModal);
+                  }}
+                >
+                  <img className="post-image" style={{ objectFit: "contain" }} src={`${post?.gifUrl}`} alt="" />
                 </div>
               )}
 
