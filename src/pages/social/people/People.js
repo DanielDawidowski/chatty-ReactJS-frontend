@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import "./People.scss";
 import { FaCircle } from "react-icons/fa";
 import { Utils } from "@services/utils/utils.service";
@@ -6,17 +6,55 @@ import Avatar from "@components/avatar/Avatar";
 import useInfiniteScroll from "@hooks/useInfiniteScroll";
 import CardElementStats from "@components/card-element/CardElementStats";
 import CardElementButtons from "@components/card-element/CardElementButtons";
+import { useDispatch } from "react-redux";
+import { userService } from "@services/api/user/user.service";
+import { uniqBy } from "lodash";
+import useEffectOnce from "@hooks/useEffectOnce";
 
 function People() {
-  const [users] = useState([]);
+  const [users, setUsers] = useState([]);
   const [onlineUsers] = useState([]);
-  const [loading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalUsersCount, setTotalUsersCount] = useState(0);
   const bodyRef = useRef(null);
   const bottomLineRef = useRef(null);
+  const dispatch = useDispatch();
 
   useInfiniteScroll(bodyRef, bottomLineRef, fetchData);
 
-  function fetchData() {}
+  const PAGE_SIZE = 12;
+
+  function fetchData() {
+    let pageNum = currentPage;
+    if (currentPage <= Math.round(totalUsersCount / PAGE_SIZE)) {
+      pageNum += 1;
+      setCurrentPage(pageNum);
+      getAllUsers();
+    }
+  }
+
+  const getAllUsers = useCallback(async () => {
+    try {
+      const response = await userService.getAllUsers(currentPage);
+      if (response.data.users.length > 0) {
+        setUsers((data) => {
+          const result = [...data, ...response.data.users];
+          const allUsers = uniqBy(result, "_id");
+          return allUsers;
+        });
+      }
+      setTotalUsersCount(response.data.totalUsers);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      Utils.dispatchNotification(error.response.data.message, "error", dispatch);
+    }
+  }, [currentPage, dispatch]);
+
+  useEffectOnce(() => {
+    getAllUsers();
+  });
 
   return (
     <div className="card-container" ref={bodyRef}>
