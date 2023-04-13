@@ -1,4 +1,4 @@
-// import ChatList from "@components/chat/list/ChatList";
+import ChatList from "@components/chat/list/ChatList";
 // import ChatWindow from "@components/chat/window/ChatWindow";
 import useEffectOnce from "@hooks/useEffectOnce";
 import "@pages/social/chat/Chat.scss";
@@ -17,10 +17,8 @@ const Chat = () => {
     <div className="private-chat-wrapper">
       <div className="private-chat-wrapper-content">
         <div className="private-chat-wrapper-content-side">
-          <span>Chat List</span>
+          <ChatList />
         </div>
-        {/* <div className="private-chat-wrapper-content-side"><ChatList /></div> */}
-
         <div className="private-chat-wrapper-content-conversation">
           {(selectedChatUser || chatList.length > 0) && <span>Chat Window</span>}
           {/* {(selectedChatUser || chatList.length > 0) && <ChatWindow />} */}
