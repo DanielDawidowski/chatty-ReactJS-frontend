@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import Avatar from "@components/avatar/Avatar";
 import Input from "@components/input/Input";
 import { Utils } from "@services/utils/utils.service";
 import "@components/chat/list/ChatList.scss";
 import SearchList from "./search-list/SearchList";
+import { userService } from "@services/api/user/user.service";
+import useDebounce from "@hooks/useDebounce";
 
 function ChatList() {
   const { profile } = useSelector((state) => state.user);
@@ -16,8 +18,34 @@ function ChatList() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [componentType, setComponentType] = useState("chatList");
   const [chatMessageList, setChatMessageList] = useState([]);
+  const debouncedValue = useDebounce(search, 1000);
+  const dispatch = useDispatch();
+
+  const searchUsers = useCallback(
+    async (query) => {
+      setIsSearching(true);
+      try {
+        setSearch(query);
+        if (query) {
+          const response = await userService.searchUsers(query);
+          setSearchResult(response.data.search);
+          setIsSearching(false);
+        }
+      } catch (error) {
+        setIsSearching(false);
+        Utils.dispatchNotification(error.response.data.message, "error", dispatch);
+      }
+    },
+    [dispatch]
+  );
 
   const removeSelectedUserFromList = (event) => {};
+
+  useEffect(() => {
+    if (debouncedValue) {
+      searchUsers(debouncedValue);
+    }
+  }, [debouncedValue, searchUsers]);
 
   useEffect(() => {
     console.log(selectedUser, componentType, chatMessageList);
@@ -42,13 +70,34 @@ function ChatList() {
 
         <div className="conversation-container-search" data-testid="search-container">
           <FaSearch className="search" />
-          <Input id="message" name="message" type="text" className="search-input" labelText="" placeholder="Search" />
-          <FaTimes className="times" />
+          <Input
+            id="message"
+            name="message"
+            value={search}
+            type="text"
+            className="search-input"
+            labelText=""
+            placeholder="Search"
+            handleChange={(event) => {
+              setIsSearching(true);
+              setSearch(event.target.value);
+            }}
+          />
+          {search && (
+            <FaTimes
+              className="times"
+              onClick={() => {
+                setSearch("");
+                setIsSearching(false);
+                setSearchResult([]);
+              }}
+            />
+          )}
         </div>
 
         <div className="conversation-container-body">
           <div className="conversation">
-            {[].map((data) => (
+            {chatMessageList.map((data) => (
               <div data-testid="conversation-item" className="conversation-item" key={Utils.generateString(10)}>
                 <div className="avatar">
                   <Avatar name="placeholder" bgColor="red" textColor="#ffffff" size={40} avatarSrc="" />
