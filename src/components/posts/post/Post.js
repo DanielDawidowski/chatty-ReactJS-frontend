@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { find } from "lodash";
@@ -18,14 +18,17 @@ import { openModal, toggleDeleteDialog } from "@redux/reducers/modal/modal.reduc
 import { clearPost, updatePostItem } from "@redux/reducers/post/post.reducer";
 import Dialog from "@components/dialog/Dialog";
 import { postService } from "@services/api/post/post.service";
+import { ImageUtils } from "@services/utils/image-utils.service";
 
 function Post({ post, showIcons }) {
   const { _id } = useSelector((state) => state.post);
   const { commentsModalIsOpen, reactionsModalIsOpen, deleteDialogIsOpen } = useSelector((state) => state.modal);
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [backgroundImageColor, setBackgroundImageColor] = useState("");
   const selectedPostId = useLocalStorage("selectedPostId", "get");
   const dispatch = useDispatch();
+
   const getFeeling = (name) => {
     const feeling = find(feelingsList, (data) => data.name === name);
     return feeling?.image;
@@ -58,6 +61,21 @@ function Post({ post, showIcons }) {
     dispatch(toggleDeleteDialog({ toggle: !deleteDialogIsOpen }));
     dispatch(updatePostItem(post));
   };
+
+  const getBackgroundImageColor = async (post) => {
+    let imageUrl = "";
+    if (post?.imgId && !post?.gifUrl && post.bgColor === "#ffffff") {
+      imageUrl = Utils.getImage(post.imgId, post.imgVersion);
+    } else if (post?.gifUrl && post.bgColor === "#ffffff") {
+      imageUrl = post?.gifUrl;
+    }
+    const bgColor = await ImageUtils.getBackgroundImageColor(imageUrl);
+    setBackgroundImageColor(bgColor);
+  };
+
+  useEffect(() => {
+    getBackgroundImageColor(post);
+  }, [post]);
 
   return (
     <>
@@ -136,7 +154,7 @@ function Post({ post, showIcons }) {
                 <div
                   data-testid="post-image"
                   className="image-display-flex"
-                  style={{ height: "600px" }}
+                  style={{ height: "600px", backgroundColor: `${backgroundImageColor}` }}
                   onClick={() => {
                     setImageUrl(Utils.getImage(post.imgId, post.imgVersion));
                     setShowImageModal(!showImageModal);
@@ -154,6 +172,7 @@ function Post({ post, showIcons }) {
               {post?.gifUrl && post.bgColor === "#ffffff" && (
                 <div
                   className="image-display-flex"
+                  style={{ height: "600px", backgroundColor: `${backgroundImageColor}` }}
                   onClick={() => {
                     setImageUrl(post?.gifUrl);
                     setShowImageModal(!showImageModal);

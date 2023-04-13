@@ -39,7 +39,7 @@ const Suggestions = () => {
       <div className="suggestions-container">
         <div className="suggestions">
           {users?.map((user) => (
-            <div data-testid="suggestions-item" className="suggestions-item" key={user?._id}>
+            <div data-testid="suggestions-item" className="suggestions-item" key={Utils.generateString(10)}>
               <Avatar
                 name={user?.username}
                 bgColor={user?.avatarColor}
