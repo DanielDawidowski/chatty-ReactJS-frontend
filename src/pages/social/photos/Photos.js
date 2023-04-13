@@ -1,3 +1,4 @@
+import GalleryImage from "@components/gallery-image/GalleryImage";
 import useEffectOnce from "@hooks/useEffectOnce";
 import { followerService } from "@services/api/followers/followers.service";
 import { postService } from "@services/api/post/post.service";
@@ -41,10 +42,10 @@ const Photos = () => {
     }
   };
 
-  // const postImageUrl = (post) => {
-  //   const imgUrl = Utils.getImage(post?.imgId, post?.imgVersion);
-  //   return post?.gifUrl ? post?.gifUrl : imgUrl;
-  // };
+  const postImageUrl = (post) => {
+    const imgUrl = Utils.getImage(post?.imgId, post?.imgVersion);
+    return post?.gifUrl ? post?.gifUrl : imgUrl;
+  };
 
   const emptyPost = (post) => {
     return (
@@ -117,7 +118,26 @@ const Photos = () => {
                 data-testid="gallery-images"
               >
                 {(!Utils.checkIfUserIsBlocked(profile?.blockedBy, post?.userId) || post?.userId === profile?._id) && (
-                  <>{PostUtils.checkPrivacy(post, profile, following) && <></>}</>
+                  <>
+                    {PostUtils.checkPrivacy(post, profile, following) && (
+                      <>
+                        <GalleryImage
+                          post={post}
+                          showCaption={true}
+                          showDelete={false}
+                          imgSrc={`${postImageUrl(post)}`}
+                          onClick={() => {
+                            setRightImageIndex(index + 1);
+                            setLeftImageIndex(index);
+                            setLastItemLeft(index === 0);
+                            setLastItemRight(index + 1 === posts.length);
+                            setImageUrl(postImageUrl(post));
+                            setShowImageModal(!showImageModal);
+                          }}
+                        />
+                      </>
+                    )}
+                  </>
                 )}
               </div>
             ))}
