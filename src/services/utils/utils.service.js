@@ -1,9 +1,8 @@
-import { addNotification, clearNotification } from "@redux/reducers/notifications/notification.reducer";
-import { addUser, clearUser } from "@redux/reducers/user/user.reducer";
-import { APP_ENVIRONMENT } from "@services/axios";
-import { avatarColors } from "@services/utils/static.data";
-import { floor, random, some, findIndex } from "lodash";
 import millify from "millify";
+import { findIndex, floor, random, some } from "lodash";
+import { avatarColors } from "@services/utils/static.data";
+import { addUser, clearUser } from "@redux/reducers/user/user.reducer";
+import { addNotification, clearNotification } from "@redux/reducers/notifications/notifications.reducer";
 
 export class Utils {
   static avatarColor() {
@@ -53,11 +52,10 @@ export class Utils {
   }
 
   static appEnvironment() {
-    if (APP_ENVIRONMENT === "local") {
-      return "LOCAL";
-    } else if (APP_ENVIRONMENT === "development") {
+    const env = process.env.REACT_APP_ENVIRONMENT;
+    if (env === "development") {
       return "DEV";
-    } else if (APP_ENVIRONMENT === "staging") {
+    } else if (env === "staging") {
       return "STG";
     }
   }
@@ -69,8 +67,7 @@ export class Utils {
       subText: "View personal profile."
     };
     items.push(item);
-    setSettings(items);
-    return items;
+    return setSettings(items);
   }
 
   static appImageUrl(version, id) {
@@ -134,26 +131,9 @@ export class Utils {
     return imageId && imageVersion ? this.appImageUrl(imageVersion, imageId) : "";
   }
 
-  static getVideo(videoId, videoVersion) {
-    return videoId && videoVersion
-      ? `https://res.cloudinary.com/dandawid/video/upload/v${videoVersion}/${videoId}`
-      : "";
-  }
-
   static removeUserFromList(list, userId) {
     const index = findIndex(list, (id) => id === userId);
     list.splice(index, 1);
     return list;
-  }
-
-  static checkUrl(url, word) {
-    return url.includes(word);
-  }
-
-  static renameFile(element) {
-    const fileName = element.name.split(".").slice(0, -1).join(".");
-    const blob = element.slice(0, element.size, "/image/png");
-    const newFile = new File([blob], `${fileName}.png`, { type: "/image/png" });
-    return newFile;
   }
 }

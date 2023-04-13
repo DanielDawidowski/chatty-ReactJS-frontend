@@ -1,9 +1,9 @@
 import { closeModal } from "@redux/reducers/modal/modal.reducer";
 import { clearPost, updatePostItem } from "@redux/reducers/post/post.reducer";
 import { postService } from "@services/api/post/post.service";
-import { Utils } from "./utils.service";
 import { socketService } from "@services/socket/socket.service";
-import { cloneDeep, findIndex, remove } from "lodash";
+import { Utils } from "@services/utils/utils.service";
+import { cloneDeep, find, findIndex, remove } from "lodash";
 
 export class PostUtils {
   static selectBackground(bgColor, postData, setTextAreaBackground, setPostData) {
@@ -59,8 +59,9 @@ export class PostUtils {
     Utils.dispatchNotification(message, type, dispatch);
   }
 
-  static async sendPostWithFileRequest(type, postData, imageInputRef, setApiResponse, setLoading, dispatch) {
+  static async sendPostWithImageRequest(fileResult, postData, imageInputRef, setApiResponse, setLoading, dispatch) {
     try {
+      postData.image = fileResult;
       if (imageInputRef?.current) {
         imageInputRef.current.textContent = postData.post;
       }
@@ -74,12 +75,13 @@ export class PostUtils {
     }
   }
 
-  static async sendUpdatePostWithFileRequest(type, postId, postData, setApiResponse, setLoading, dispatch) {
+  static async sendUpdatePostWithImageRequest(fileResult, postId, postData, setApiResponse, setLoading, dispatch) {
     try {
-      const response =
-        type === "image"
-          ? await postService.updatePostWithImage(postId, postData)
-          : await postService.updatePostWithVideo(postId, postData);
+      postData.image = fileResult;
+      postData.gifUrl = "";
+      postData.imgId = "";
+      postData.imgVersion = "";
+      const response = await postService.updatePostWithImage(postId, postData);
       if (response) {
         PostUtils.dispatchNotification(response.data.message, "success", setApiResponse, setLoading, dispatch);
         setTimeout(() => {
@@ -145,7 +147,7 @@ export class PostUtils {
     });
 
     socketService?.socket?.on("update like", (reactionData) => {
-      const postData = posts.find((post) => post._id === reactionData?.postId);
+      const postData = find(posts, (post) => post._id === reactionData?.postId);
       if (postData) {
         postData.reactions = reactionData.postReactions;
         PostUtils.updateSinglePost(posts, postData, setPosts);
@@ -153,7 +155,7 @@ export class PostUtils {
     });
 
     socketService?.socket?.on("update comment", (commentData) => {
-      const postData = posts.find((post) => post._id === commentData?.postId);
+      const postData = find(posts, (post) => post._id === commentData?.postId);
       if (postData) {
         postData.commentsCount = commentData.commentsCount;
         PostUtils.updateSinglePost(posts, postData, setPosts);
