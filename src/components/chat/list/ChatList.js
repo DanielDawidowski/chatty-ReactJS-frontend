@@ -13,6 +13,7 @@ import useDebounce from "@hooks/useDebounce";
 import { ChatUtils } from "@services/utils/chat-utils.service";
 import { chatService } from "@services/api/chat/chat.service";
 import { setSelectedChatUser } from "@redux/reducers/chat/chat.reducer";
+import { timeAgo } from "@services/utils/timeago.utils";
 
 function ChatList() {
   const { profile } = useSelector((state) => state.user);
@@ -140,26 +141,69 @@ function ChatList() {
         </div>
 
         <div className="conversation-container-body">
-          <div className="conversation">
-            {chatMessageList.map((data) => (
-              <div data-testid="conversation-item" className="conversation-item" key={Utils.generateString(10)}>
-                <div className="avatar">
-                  <Avatar name="placeholder" bgColor="red" textColor="#ffffff" size={40} avatarSrc="" />
+          {!search && (
+            <div className="conversation">
+              {chatMessageList.map((data) => (
+                <div
+                  data-testid="conversation-item"
+                  key={Utils.generateString(10)}
+                  className={`conversation-item ${
+                    searchParams.get("username") === data?.receiverUsername.toLowerCase() ||
+                    searchParams.get("username") === data?.senderUsername.toLowerCase()
+                      ? "active"
+                      : ""
+                  }`}
+                >
+                  <div className="avatar">
+                    <Avatar
+                      name={data.receiverUsername === profile?.username ? profile?.username : data?.senderUsername}
+                      bgColor={
+                        data.receiverUsername === profile?.username ? data.receiverAvatarColor : data?.senderAvatarColor
+                      }
+                      textColor="#ffffff"
+                      size={40}
+                      avatarSrc={
+                        data.receiverUsername !== profile?.username
+                          ? data.receiverProfilePicture
+                          : data?.senderProfilePicture
+                      }
+                    />
+                  </div>
+                  <div className={`title-text ${selectedUser && !data.body ? "selected-user-text" : ""}`}>
+                    {data.receiverUsername !== profile?.username ? data.receiverUsername : data?.senderUsername}
+                  </div>
+                  {data?.createdAt && <div className="created-date">{timeAgo.transform(data?.createdAt)}</div>}
+                  {!data?.body && (
+                    <div className="created-date" onClick={removeSelectedUserFromList}>
+                      <FaTimes />
+                    </div>
+                  )}
+                  {data?.body &&
+                    !data?.deleteForMe &&
+                    !data.deleteForEveryone &&
+                    {
+                      // <ChatListBody data={data} profile={profile} />
+                    }}
+                  {data?.deleteForMe && data?.deleteForEveryone && (
+                    <div className="conversation-message">
+                      <span className="message-deleted">message deleted</span>
+                    </div>
+                  )}
+                  {data?.deleteForMe && !data.deleteForEveryone && data.senderUsername !== profile?.username && (
+                    <div className="conversation-message">
+                      <span className="message-deleted">message deleted</span>
+                    </div>
+                  )}
+                  {data?.deleteForMe &&
+                    !data.deleteForEveryone &&
+                    data.receiverUsername !== profile?.username &&
+                    {
+                      // <ChatListBody data={data} profile={profile} />
+                    }}
                 </div>
-                <div className="title-text">Danny</div>
-                <div className="created-date">1 hr ago</div>
-                <div className="created-date" onClick={removeSelectedUserFromList}>
-                  <FaTimes />
-                </div>
-                <div className="conversation-message">
-                  <span className="message-deleted">message deleted</span>
-                </div>
-                <div className="conversation-message">
-                  <span className="message-deleted">message deleted</span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           <SearchList
             searchTerm={search}
             result={searchResult}
