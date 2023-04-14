@@ -1,21 +1,22 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { FaSearch, FaTimes } from "react-icons/fa";
-import { find } from "lodash";
-import { useSearchParams } from "react-router-dom";
 import Avatar from "@components/avatar/Avatar";
 import Input from "@components/input/Input";
 import { Utils } from "@services/utils/utils.service";
+import { FaSearch, FaTimes } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
 import "@components/chat/list/ChatList.scss";
-import SearchList from "./search-list/SearchList";
+import SearchList from "@components/chat/list/search-list/SearchList";
+import { useCallback, useEffect, useState } from "react";
 import { userService } from "@services/api/user/user.service";
 import useDebounce from "@hooks/useDebounce";
 import { ChatUtils } from "@services/utils/chat-utils.service";
-import { chatService } from "@services/api/chat/chat.service";
+import { cloneDeep, find, findIndex } from "lodash";
+import { createSearchParams, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { setSelectedChatUser } from "@redux/reducers/chat/chat.reducer";
+import { chatService } from "@services/api/chat/chat.service";
 import { timeAgo } from "@services/utils/timeago.utils";
+import ChatListBody from "@components/chat/list/ChatListBody";
 
-function ChatList() {
+const ChatList = () => {
   const { profile } = useSelector((state) => state.user);
   const { chatList } = useSelector((state) => state.chat);
   const [search, setSearch] = useState("");
@@ -23,9 +24,12 @@ function ChatList() {
   const [isSearching, setIsSearching] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [componentType, setComponentType] = useState("chatList");
-  const [chatMessageList, setChatMessageList] = useState([]);
+  let [chatMessageList, setChatMessageList] = useState([]);
+  const [rendered, setRendered] = useState(false);
   const debouncedValue = useDebounce(search, 1000);
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const searchUsers = useCallback(
@@ -79,7 +83,58 @@ function ChatList() {
     [chatList, chatMessageList, dispatch, searchParams, profile]
   );
 
-  const removeSelectedUserFromList = (event) => {};
+  const removeSelectedUserFromList = (event) => {
+    event.stopPropagation();
+    chatMessageList = cloneDeep(chatMessageList);
+    const userIndex = findIndex(chatMessageList, ["receiverId", searchParams.get("id")]);
+    if (userIndex > -1) {
+      chatMessageList.splice(userIndex, 1);
+      setSelectedUser(null);
+      setChatMessageList(chatMessageList);
+      ChatUtils.updatedSelectedChatUser({
+        chatMessageList,
+        profile,
+        username: searchParams.get("username"),
+        setSelectedChatUser,
+        params: chatMessageList.length ? updateQueryParams(chatMessageList[0]) : null,
+        pathname: location.pathname,
+        navigate,
+        dispatch
+      });
+    }
+  };
+
+  const updateQueryParams = (user) => {
+    setSelectedUser(user);
+    const params = ChatUtils.chatUrlParams(user, profile);
+    ChatUtils.joinRoomEvent(user, profile);
+    ChatUtils.privateChatMessages = [];
+    return params;
+  };
+
+  // this is for when a user already exist in the chat list
+  const addUsernameToUrlQuery = async (user) => {
+    try {
+      const sender = find(
+        ChatUtils.chatUsers,
+        (userData) =>
+          userData.userOne === profile?.username && userData.userTwo.toLowerCase() === searchParams.get("username")
+      );
+      const params = updateQueryParams(user);
+      const userTwoName = user?.receiverUsername !== profile?.username ? user?.receiverUsername : user?.senderUsername;
+      const receiverId = user?.receiverUsername !== profile?.username ? user?.receiverId : user?.senderId;
+      navigate(`${location.pathname}?${createSearchParams(params)}`);
+      if (sender) {
+        chatService.removeChatUsers(sender);
+      }
+      chatService.addChatUsers({ userOne: profile?.username, userTwo: userTwoName });
+      if (user?.receiverUsername === profile?.username && !user.isRead) {
+        await chatService.markMessagesAsRead(profile?._id, receiverId);
+      }
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, "error", dispatch);
+    }
+  };
 
   useEffect(() => {
     if (debouncedValue) {
@@ -95,7 +150,14 @@ function ChatList() {
 
   useEffect(() => {
     setChatMessageList(chatList);
-  }, [chatList, selectedUser, componentType, chatMessageList]);
+  }, [chatList]);
+
+  useEffect(() => {
+    if (rendered) {
+      ChatUtils.socketIOChatList(profile, chatMessageList, setChatMessageList);
+    }
+    if (!rendered) setRendered(true);
+  }, [chatMessageList, profile, rendered]);
 
   return (
     <div data-testid="chatList">
@@ -118,8 +180,8 @@ function ChatList() {
           <Input
             id="message"
             name="message"
-            value={search}
             type="text"
+            value={search}
             className="search-input"
             labelText=""
             placeholder="Search"
@@ -145,14 +207,15 @@ function ChatList() {
             <div className="conversation">
               {chatMessageList.map((data) => (
                 <div
-                  data-testid="conversation-item"
                   key={Utils.generateString(10)}
+                  data-testid="conversation-item"
                   className={`conversation-item ${
                     searchParams.get("username") === data?.receiverUsername.toLowerCase() ||
                     searchParams.get("username") === data?.senderUsername.toLowerCase()
                       ? "active"
                       : ""
                   }`}
+                  onClick={() => addUsernameToUrlQuery(data)}
                 >
                   <div className="avatar">
                     <Avatar
@@ -178,12 +241,9 @@ function ChatList() {
                       <FaTimes />
                     </div>
                   )}
-                  {data?.body &&
-                    !data?.deleteForMe &&
-                    !data.deleteForEveryone &&
-                    {
-                      // <ChatListBody data={data} profile={profile} />
-                    }}
+                  {data?.body && !data?.deleteForMe && !data.deleteForEveryone && (
+                    <ChatListBody data={data} profile={profile} />
+                  )}
                   {data?.deleteForMe && data?.deleteForEveryone && (
                     <div className="conversation-message">
                       <span className="message-deleted">message deleted</span>
@@ -194,16 +254,14 @@ function ChatList() {
                       <span className="message-deleted">message deleted</span>
                     </div>
                   )}
-                  {data?.deleteForMe &&
-                    !data.deleteForEveryone &&
-                    data.receiverUsername !== profile?.username &&
-                    {
-                      // <ChatListBody data={data} profile={profile} />
-                    }}
+                  {data?.deleteForMe && !data.deleteForEveryone && data.receiverUsername !== profile?.username && (
+                    <ChatListBody data={data} profile={profile} />
+                  )}
                 </div>
               ))}
             </div>
           )}
+
           <SearchList
             searchTerm={search}
             result={searchResult}
@@ -218,6 +276,5 @@ function ChatList() {
       </div>
     </div>
   );
-}
-
+};
 export default ChatList;
