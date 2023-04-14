@@ -2,9 +2,13 @@ import React from "react";
 import Avatar from "@components/avatar/Avatar";
 import { useSelector } from "react-redux";
 import "@components/chat/window/ChatWindow.scss";
+import MessageInput from "./message-input/MessageInput";
 
 function ChatWindow() {
   const { profile } = useSelector((state) => state.user);
+
+  const sendChatMessage = () => {};
+
   return (
     <div className="chat-window-container" data-testid="chatWindowContainer">
       <div data-testid="chatWindow">
@@ -25,7 +29,9 @@ function ChatWindow() {
         </div>
         <div className="chat-window">
           <div className="chat-window-message">Message display component</div>
-          <div className="chat-window-input">Message input component</div>
+          <div className="chat-window-input">
+            <MessageInput setChatMessage={sendChatMessage} />
+          </div>
         </div>
       </div>
     </div>
