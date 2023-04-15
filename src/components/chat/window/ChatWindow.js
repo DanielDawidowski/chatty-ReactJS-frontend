@@ -9,6 +9,7 @@ import { chatService } from "@services/api/chat/chat.service";
 import { ChatUtils } from "@services/utils/chat-utils.service";
 import { userService } from "@services/api/user/user.service";
 import { some } from "lodash";
+import MessageDisplay from "./message-display/MessageDisplay";
 
 function ChatWindow() {
   const { profile } = useSelector((state) => state.user);
@@ -17,6 +18,7 @@ function ChatWindow() {
   const [conversationId, setConversationId] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [rendered, setRendered] = useState(false);
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
 
@@ -24,7 +26,7 @@ function ChatWindow() {
     async (receiverId) => {
       try {
         const response = await chatService.getChatMessages(receiverId);
-        // console.log("response", response.data.messages);
+        console.log("response", response.data.messages);
         ChatUtils.privateChatMessages = [...response.data.messages];
         setChatMessages([...ChatUtils.privateChatMessages]);
       } catch (error) {
@@ -78,16 +80,39 @@ function ChatWindow() {
     }
   };
 
-  useEffect(() => {
-    getUserProfileByUserId();
-    getNewUserMessages();
-  }, [getUserProfileByUserId, getNewUserMessages]);
+  const updateMessageReaction = async (body) => {
+    try {
+      await chatService.updateMessageReaction(body);
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, "error", dispatch);
+    }
+  };
+
+  const deleteChatMessage = async (senderId, receiverId, messageId, type) => {
+    try {
+      await chatService.markMessageAsDelete(messageId, senderId, receiverId, type);
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, "error", dispatch);
+    }
+  };
 
   useEffect(() => {
-    ChatUtils.socketIOMessageReceived(chatMessages, searchParams.get("username"), setConversationId, setChatMessages);
+    if (rendered) {
+      getUserProfileByUserId();
+      getNewUserMessages();
+    }
+    if (!rendered) setRendered(true);
+  }, [getUserProfileByUserId, getNewUserMessages, searchParams, rendered]);
+
+  useEffect(() => {
+    if (rendered) {
+      ChatUtils.socketIOMessageReceived(chatMessages, searchParams.get("username"), setConversationId, setChatMessages);
+    }
+    if (!rendered) setRendered(true);
     ChatUtils.usersOnline(setOnlineUsers);
     ChatUtils.usersOnChatPage();
-  }, [searchParams, chatMessages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, rendered]);
 
   useEffect(() => {
     ChatUtils.socketIOMessageReaction(chatMessages, searchParams.get("username"), setConversationId, setChatMessages);
@@ -125,7 +150,14 @@ function ChatWindow() {
             </div>
           </div>
           <div className="chat-window">
-            <div className="chat-window-message">Message display component</div>
+            <div className="chat-window-message">
+              <MessageDisplay
+                chatMessages={chatMessages}
+                profile={profile}
+                updateMessageReaction={updateMessageReaction}
+                deleteChatMessage={deleteChatMessage}
+              />
+            </div>
             <div className="chat-window-input">
               <MessageInput setChatMessage={sendChatMessage} />
             </div>
