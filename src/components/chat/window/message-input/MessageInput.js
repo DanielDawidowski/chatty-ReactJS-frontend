@@ -1,16 +1,20 @@
+import { useEffect, useRef, useState } from "react";
+import loadable from "@loadable/component";
+import { FaPaperPlane } from "react-icons/fa";
+import PropTypes from "prop-types";
 import Button from "@components/button/Button";
 import Input from "@components/input/Input";
-import PropTypes from "prop-types";
-import { FaPaperPlane } from "react-icons/fa";
 import gif from "@assets/images/gif.png";
 import photo from "@assets/images/photo.png";
 import feeling from "@assets/images/feeling.png";
 import "@components/chat/window/message-input/MessageInput.scss";
-import { useEffect, useRef, useState } from "react";
 import GiphyContainer from "@components/chat/giphy-container/GiphyContainer";
 import ImagePreview from "@components/chat/image-preview/ImagePreview";
 import { ImageUtils } from "@services/utils/image-utils.service";
-import EmojiPicker from "@components/chat/window/message-input/EmojiPicker";
+
+const EmojiPickerComponent = loadable(() => import("./EmojiPicker"), {
+  fallback: <p id="loading">Loading...</p>
+});
 
 const MessageInput = ({ setChatMessage }) => {
   let [message, setMessage] = useState("");
@@ -73,7 +77,7 @@ const MessageInput = ({ setChatMessage }) => {
   return (
     <>
       {showEmojiContainer && (
-        <EmojiPicker
+        <EmojiPickerComponent
           onEmojiClick={(event) => {
             setMessage((text) => (text += ` ${event.emoji}`));
           }}
