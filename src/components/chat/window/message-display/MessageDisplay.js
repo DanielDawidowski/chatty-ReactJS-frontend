@@ -8,6 +8,7 @@ import useDetectOutsideClick from "@hooks/useDetectOutsideClick";
 import useChatScrollToBottom from "@hooks/useChatScrollToBottom";
 import ImageModal from "@components/image-modal/ImageModal";
 import Dialog from "@components/dialog/Dialog";
+import LeftMessageDisplay from "@components/chat/window/message-display/left-message/LeftMessageDisplay";
 
 const MessageDisplay = ({ chatMessages, profile, updateMessageReaction, deleteChatMessage }) => {
   const [imageUrl, setImageUrl] = useState("");
@@ -99,6 +100,27 @@ const MessageDisplay = ({ chatMessages, profile, updateMessageReaction, deleteCh
                   <RightMessageDisplay
                     chat={chat}
                     lastChatMessage={chatMessages[chatMessages.length - 1]}
+                    profile={profile}
+                    toggleReaction={toggleReaction}
+                    showReactionIcon={showReactionIcon}
+                    index={index}
+                    activeElementIndex={activeElementIndex}
+                    reactionRef={reactionRef}
+                    setToggleReaction={setToggleReaction}
+                    handleReactionClick={handleReactionClick}
+                    deleteMessage={deleteMessage}
+                    showReactionIconOnHover={showReactionIconOnHover}
+                    setActiveElementIndex={setActiveElementIndex}
+                    setShowImageModal={setShowImageModal}
+                    setImageUrl={setImageUrl}
+                    showImageModal={showImageModal}
+                    setSelectedReaction={setSelectedReaction}
+                  />
+                )}
+
+                {chat.receiverUsername === profile?.username && (
+                  <LeftMessageDisplay
+                    chat={chat}
                     profile={profile}
                     toggleReaction={toggleReaction}
                     showReactionIcon={showReactionIcon}
