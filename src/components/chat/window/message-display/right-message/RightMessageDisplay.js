@@ -1,9 +1,11 @@
-import React from "react";
-import PropTypes from "prop-types";
 import Reactions from "@components/posts/reactions/Reactions";
+import { timeAgo } from "@services/utils/timeago.utils";
+import PropTypes from "prop-types";
+import doubleCheckmark from "@assets/images/double-checkmark.png";
+import RightMessageBubble from "@components/chat/window/message-display/right-message-display/RightMessageBubble";
 import { reactionsMap } from "@services/utils/static.data";
 
-function RightMessageDisplay({
+const RightMessageDisplay = ({
   chat,
   lastChatMessage,
   profile,
@@ -21,7 +23,7 @@ function RightMessageDisplay({
   setShowImageModal,
   setImageUrl,
   showImageModal
-}) {
+}) => {
   return (
     <div className="message right-message" data-testid="right-message">
       <div className="message-right-reactions-container">
@@ -69,7 +71,22 @@ function RightMessageDisplay({
               <span className="message-deleted">message deleted</span>
             </div>
           )}
-          Message display component Message display component
+          {!chat?.deleteForEveryone && !chat?.deleteForMe && (
+            <RightMessageBubble
+              chat={chat}
+              showImageModal={showImageModal}
+              setImageUrl={setImageUrl}
+              setShowImageModal={setShowImageModal}
+            />
+          )}
+          {!chat?.deleteForEveryone && chat?.deleteForMe && chat.senderUsername === profile?.username && (
+            <RightMessageBubble
+              chat={chat}
+              showImageModal={showImageModal}
+              setImageUrl={setImageUrl}
+              setShowImageModal={setShowImageModal}
+            />
+          )}
         </div>
         {showReactionIcon && index === activeElementIndex && !chat.deleteForEveryone && (
           <div className="message-content-emoji-right-container" onClick={() => setToggleReaction(true)}>
@@ -102,13 +119,21 @@ function RightMessageDisplay({
           </div>
         )}
         <div className="message-time">
-          <img src="" alt="" className="message-read-icon" />
-          <span data-testid="chat-time">1 hr ago</span>
+          {chat?.senderUsername === profile?.username && !chat?.deleteForEveryone && (
+            <>
+              {lastChatMessage?.isRead ? (
+                <img src={doubleCheckmark} alt="" className="message-read-icon" />
+              ) : (
+                <>{chat?.isRead && <img src={doubleCheckmark} alt="" className="message-read-icon" />}</>
+              )}
+            </>
+          )}
+          <span data-testid="chat-time">{timeAgo.timeFormat(chat?.createdAt)}</span>
         </div>
       </div>
     </div>
   );
-}
+};
 
 RightMessageDisplay.propTypes = {
   chat: PropTypes.object,
@@ -129,5 +154,4 @@ RightMessageDisplay.propTypes = {
   showImageModal: PropTypes.bool,
   setImageUrl: PropTypes.func
 };
-
 export default RightMessageDisplay;
