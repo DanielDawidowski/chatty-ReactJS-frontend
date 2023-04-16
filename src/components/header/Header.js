@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createSearchParams, useNavigate } from "react-router-dom";
+import { createSearchParams, useLocation, useNavigate } from "react-router-dom";
 import logo from "@assets/images/logo.svg";
 import { FaCaretDown, FaRegBell, FaRegEnvelope, FaCaretUp } from "react-icons/fa";
 import useDetectOutsideClick from "@hooks/useDetectOutsideClick";
@@ -33,6 +33,7 @@ const Header = () => {
   const notificationRef = useRef(null);
   const settingsRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [settings, setSettings] = useState([]);
   const [isMessageActive, setIsMessageActive] = useDetectOutsideClick(messageRef, false);
@@ -141,7 +142,15 @@ const Header = () => {
 
   useEffect(() => {
     NotificationUtils.socketIONotification(profile, notifications, setNotifications, "header", setNotificationCount);
-  }, [profile, notifications, dispatch]);
+    NotificationUtils.socketIOMessageNotification(
+      profile,
+      messageNotifications,
+      setMessageNotifications,
+      setMessageCount,
+      dispatch,
+      location
+    );
+  }, [profile, notifications, dispatch, location, messageNotifications]);
 
   return (
     <>

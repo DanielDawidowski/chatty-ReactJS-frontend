@@ -26,7 +26,6 @@ function ChatWindow() {
     async (receiverId) => {
       try {
         const response = await chatService.getChatMessages(receiverId);
-        console.log("response", response.data.messages);
         ChatUtils.privateChatMessages = [...response.data.messages];
         setChatMessages([...ChatUtils.privateChatMessages]);
       } catch (error) {
