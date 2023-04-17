@@ -8,6 +8,7 @@ import useSessionStorage from "@hooks/useSessionStorage";
 import { addUser } from "@redux/reducers/user/user.reducer";
 import { userService } from "@services/api/user/user.service";
 import { Utils } from "@services/utils/utils.service";
+import { getConversationList } from "@redux/api/chat";
 
 const ProtectedRoute = ({ children }) => {
   const { profile, token } = useSelector((state) => state.user);
@@ -24,7 +25,7 @@ const ProtectedRoute = ({ children }) => {
   const checkUser = useCallback(async () => {
     try {
       const response = await userService.checkCurrentUser();
-      // dispatch conversation list
+      dispatch(getConversationList());
       setUserData(response.data.user);
       setTokenIsValid(true);
       dispatch(addUser({ token: response.data.token, profile: response.data.user }));
