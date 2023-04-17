@@ -1,26 +1,25 @@
 import { useState, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { createSearchParams, useLocation, useNavigate } from "react-router-dom";
+import { sumBy } from "lodash";
 import logo from "@assets/images/logo.svg";
-import { FaCaretDown, FaRegBell, FaRegEnvelope, FaCaretUp } from "react-icons/fa";
-import useDetectOutsideClick from "@hooks/useDetectOutsideClick";
-import MessageSidebar from "@components/message-sidebar/MessageSidebar";
-import useEffectOnce from "@hooks/useEffectOnce";
+import { FaCaretDown, FaCaretUp, FaRegBell, FaRegEnvelope } from "react-icons/fa";
+import "@components/header/Header.scss";
 import Avatar from "@components/avatar/Avatar";
 import { Utils } from "@services/utils/utils.service";
+import useDetectOutsideClick from "@hooks/useDetectOutsideClick";
+import MessageSidebar from "@components/message-sidebar/MessageSidebar";
+import { useDispatch, useSelector } from "react-redux";
 import Dropdown from "@components/dropdown/Dropdown";
+import useEffectOnce from "@hooks/useEffectOnce";
 import { ProfileUtils } from "@services/utils/profile-utils.service";
 import useLocalStorage from "@hooks/useLocalStorage";
 import useSessionStorage from "@hooks/useSessionStorage";
-
-import "@components/header/Header.scss";
 import { userService } from "@services/api/user/user.service";
-import HeaderSkeleton from "./HeaderSkeleton";
+import HeaderSkeleton from "@components/header/HeaderSkeleton";
 import { notificationService } from "@services/api/notifications/notifications.service";
 import { NotificationUtils } from "@services/utils/notification-utils.service";
 import NotificationPreview from "@components/dialog/NotificationPreview";
 import { socketService } from "@services/socket/socket.service";
-import { sumBy } from "lodash";
 import { ChatUtils } from "@services/utils/chat-utils.service";
 import { chatService } from "@services/api/chat/chat.service";
 import { getConversationList } from "@redux/api/chat";
@@ -29,22 +28,7 @@ const Header = () => {
   const { profile } = useSelector((state) => state.user);
   const { chatList } = useSelector((state) => state.chat);
   const [environment, setEnvironment] = useState("");
-  const messageRef = useRef(null);
-  const notificationRef = useRef(null);
-  const settingsRef = useRef(null);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const dispatch = useDispatch();
   const [settings, setSettings] = useState([]);
-  const [isMessageActive, setIsMessageActive] = useDetectOutsideClick(messageRef, false);
-  const [isNotificationActive, setIsNotificationActive] = useDetectOutsideClick(notificationRef, false);
-  const [isSettingsActive, setIsSettingsActive] = useDetectOutsideClick(settingsRef, false);
-  const [messageCount, setMessageCount] = useState(0);
-  const [messageNotifications, setMessageNotifications] = useState([]);
-  const storedUsername = useLocalStorage("username", "get");
-  const [deleteStorageUsername] = useLocalStorage("username", "delete");
-  const [setLoggedIn] = useLocalStorage("keepLoggedIn", "set");
-  const [deleteSessionPageReload] = useSessionStorage("pageReload", "delete");
   const [notifications, setNotifications] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
   const [notificationDialogContent, setNotificationDialogContent] = useState({
@@ -54,6 +38,21 @@ const Header = () => {
     reaction: "",
     senderName: ""
   });
+  const [messageCount, setMessageCount] = useState(0);
+  const [messageNotifications, setMessageNotifications] = useState([]);
+  const messageRef = useRef(null);
+  const notificationRef = useRef(null);
+  const settingsRef = useRef(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const [isMessageActive, setIsMessageActive] = useDetectOutsideClick(messageRef, false);
+  const [isNotificationActive, setIsNotificationActive] = useDetectOutsideClick(notificationRef, false);
+  const [isSettingsActive, setIsSettingsActive] = useDetectOutsideClick(settingsRef, false);
+  const storedUsername = useLocalStorage("username", "get");
+  const [deleteStorageUsername] = useLocalStorage("username", "delete");
+  const [setLoggedIn] = useLocalStorage("keepLoggedIn", "set");
+  const [deleteSessionPageReload] = useSessionStorage("pageReload", "delete");
 
   const backgrounColor = `${
     environment === "DEV" || environment === "LOCAL" ? "#50b5ff" : environment === "STG" ? "#e9710f" : ""
@@ -121,7 +120,6 @@ const Header = () => {
       navigate("/");
     } catch (error) {
       Utils.dispatchNotification(error.response.data.message, "error", dispatch);
-      console.log(error);
     }
   };
 
@@ -207,6 +205,7 @@ const Header = () => {
             </div>
             <ul className="header-nav">
               <li
+                data-testid="notification-list-item"
                 className="header-nav-item active-item"
                 onClick={() => {
                   setIsMessageActive(false);
@@ -223,8 +222,8 @@ const Header = () => {
                   )}
                 </span>
                 {isNotificationActive && (
-                  <ul className="dropdown-ul">
-                    <li className="dropdown-li" ref={notificationRef}>
+                  <ul className="dropdown-ul" ref={notificationRef}>
+                    <li className="dropdown-li">
                       <Dropdown
                         height={300}
                         style={{ right: "250px", top: "20px" }}
@@ -240,6 +239,7 @@ const Header = () => {
                 &nbsp;
               </li>
               <li
+                data-testid="message-list-item"
                 className="header-nav-item active-item"
                 onClick={() => {
                   setIsMessageActive(true);
@@ -254,6 +254,7 @@ const Header = () => {
                 &nbsp;
               </li>
               <li
+                data-testid="settings-list-item"
                 className="header-nav-item"
                 onClick={() => {
                   setIsSettingsActive(!isSettingsActive);
@@ -265,7 +266,7 @@ const Header = () => {
                   <Avatar
                     name={profile?.username}
                     bgColor={profile?.avatarColor}
-                    textColor="#fff"
+                    textColor="#ffffff"
                     size={40}
                     avatarSrc={profile?.profilePicture}
                   />
@@ -278,7 +279,6 @@ const Header = () => {
                     <FaCaretUp className="header-list-icon caret" />
                   )}
                 </span>
-
                 {isSettingsActive && (
                   <ul className="dropdown-ul" ref={settingsRef}>
                     <li className="dropdown-li">
